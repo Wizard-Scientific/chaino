@@ -41,6 +41,7 @@ setup(
         "web3",
         "python-dotenv",
         "click",
+        "multicall",
     ],
     license='MIT',
     zip_safe=False,
