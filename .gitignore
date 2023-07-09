@@ -1,0 +1,12 @@
+.env
+settings.mk
+/var/
+/**/.cache/
+/**/.ipynb_checkpoints/
+/**/__pycache__/
+/**/dist/
+/**/build/
+/**/*.egg-info/
+/**/*_cache/
+/**/*_files/
+/**/*.pyc

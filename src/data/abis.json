@@ -1,0 +1,80 @@
+{
+    "erc20_balance_of": {
+        "inputs": [
+            {"internalType": "address", "name": "", "type": "address"}
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {"internalType": "uint256", "name": "", "type": "uint256"}
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    "erc20_total_supply": {
+        "constant": true,
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    "neopool_user_info": {
+        "inputs": [
+            {"internalType": "address", "name": "", "type": "address"}
+        ],
+        "name": "userInfo",
+        "outputs": [
+            {"internalType": "uint256", "name": "amount", "type": "uint256"},
+            {"internalType": "int256", "name": "rewardDebt", "type": "int256"}
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    "neopool_dual_reward_user_info": {
+        "inputs": [
+            {"internalType": "address", "name": "", "type": "address"}
+        ],
+        "name": "userInfo",
+        "outputs": [
+            {"internalType": "uint256", "name": "amountLP", "type": "uint256"},
+            {"internalType": "uint256", "name": "amount", "type": "uint256"},
+            {"internalType": "int256", "name": "rewardDebt", "type": "int256"},
+            {"internalType": "int256", "name": "rewardDebtMorph", "type": "int256"}
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    "masterchef_user_info": {
+        "inputs": [
+            {"internalType": "uint256", "name": "", "type": "uint256"},
+            {"internalType": "address", "name": "", "type": "address"}
+        ],
+        "name": "userInfo",
+        "outputs": [
+            {"internalType": "uint256", "name": "amount", "type": "uint256"},
+            {"internalType": "int256", "name": "rewardDebt", "type": "int256"}
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    "balancer_get_pool_tokens": {
+        "inputs": [
+            {"internalType": "bytes32", "name": "poolId", "type": "bytes32"}
+        ],
+        "name": "getPoolTokens",
+        "outputs": [
+            {"internalType": "contract IERC20[]", "name": "tokens", "type": "address[]"},
+            {"internalType": "uint256[]", "name": "balances", "type": "uint256[]"},
+            {"internalType": "uint256", "name": "lastChangeBlock", "type": "uint256"}
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+}
