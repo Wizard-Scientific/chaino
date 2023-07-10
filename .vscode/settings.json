@@ -1,4 +1,10 @@
 {
+    "files.exclude": {
+	"**/.pytest_cache": true,
+        "**/.vscode": true,
+        "**/__pycache__": true,
+        "**/*.pyc": true
+    },
     "python.testing.pytestArgs": [
         "src"
     ],
