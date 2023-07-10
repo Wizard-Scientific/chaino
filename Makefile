@@ -4,10 +4,14 @@ help:
 	@grep -e '^\w\S\+\:' Makefile | sed 's/://g' | cut -d ' ' -f 1
 		
 requirements:
-	pip install -U pip
-	pip install -e ./src
+	pip3 install -U pip
+	pip3 install git+https://github.com/ethereum/web3.py.git
+	pip3 install -e ./src
 
 clean:
 	find . -name '*.pyc' -delete
 	rm -rf src/build
 	rm -rf src/*.egg-info
+
+test:
+	pytest ./src

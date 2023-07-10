@@ -42,6 +42,7 @@ setup(
         "python-dotenv",
         "click",
         "multicall",
+        "pytest",
     ],
     license='MIT',
     zip_safe=False,
