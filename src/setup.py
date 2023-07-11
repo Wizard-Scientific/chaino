@@ -43,6 +43,8 @@ setup(
         "click",
         "multicall",
         "pytest",
+        "rich",
+        "pdbpp",
     ],
     license='MIT',
     zip_safe=False,

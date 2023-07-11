@@ -15,3 +15,7 @@ clean:
 
 test:
 	pytest ./src
+
+-include ./src/test-one.mk
+test-one:
+	pytest -k $(TEST_ONE) ./src

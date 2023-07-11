@@ -10,3 +10,4 @@ settings.mk
 /**/*_cache/
 /**/*_files/
 /**/*.pyc
+/**/test-one.mk
