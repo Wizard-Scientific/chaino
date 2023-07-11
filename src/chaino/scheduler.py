@@ -18,7 +18,7 @@ from .utils import init_logger
 
 
 class Scheduler:
-    def __init__(self, w3, chain, num_threads=3):
+    def __init__(self, w3, chain, num_threads=2):
         init_logger()
 
         self.w3 = w3
@@ -43,6 +43,9 @@ class Scheduler:
         logging.getLogger("chaino").debug(f"Added {contract_address, function, input_value, block_identifier} to task queue")
 
     def run_multicall(self, thread, mc):
+        logging.getLogger("chaino").debug(f"Started thread {thread.name}.")
+        filename = f"{self.state_path}/{self.timestamp}-results.json"
+
         try:
             result = mc()
         except Exception as e:
@@ -52,7 +55,7 @@ class Scheduler:
         with self.lock:
             # get current state
             try:
-                with open (f"{self.state_path}/results.json", "r") as f:
+                with open (filename, "r") as f:
                     current_state = json.load(f)
             except:
                 current_state = {}
@@ -61,30 +64,36 @@ class Scheduler:
             current_state.update(result)
 
             # write results as json
-            with open (f"{self.state_path}/results.json", "w") as f:
+            with open (filename, "w") as f:
                 json.dump(current_state, f)
 
-        logging.getLogger("chaino").info(f"Thread finished: {thread.name}")
+        logging.getLogger("chaino").info(f"Thread finished: {thread.name}; updated state: {filename}")
         self.running_threads.remove(thread)
 
     def start(self):
         "Start the scheduler"
         logging.getLogger("chaino").info(f"Starting scheduler with {len(self.tasks)} tasks")
 
+        # create timestamp as YYYY-MM-DD-HH-MM-SS
+        self.timestamp = time.strftime("%Y-%m-%d-%H-%M-%S")
+
         gmc = GroupedMulticall(self.w3, self.tasks, margin=0.6)
         for mc in gmc():
-            if self.halt_event.is_set():
-                logging.getLogger("chaino").info("Halt event is set, exiting")
-                break
-            
-            if len(self.running_threads) < self.num_threads:
-                thread = threading.Thread(target=self.run_multicall)
-                thread._args = (thread, mc)
-                thread.start()
-                self.running_threads.add(thread)
-                logging.getLogger("chaino").info(f"Started thread {thread.name}. {len(self.running_threads)} out of {self.num_threads} threads running")
 
-            time.sleep(0.1)
+            currently_running = 1e99
+            while currently_running >= self.num_threads:
+                with self.lock:
+                    currently_running = len(self.running_threads)
+
+                if self.halt_event.is_set():
+                    logging.getLogger("chaino").info("Halt event is set, exiting")
+
+                time.sleep(0.1)
+            
+            thread = threading.Thread(target=self.run_multicall)
+            thread._args = (thread, mc)
+            self.running_threads.add(thread)
+            thread.start()
 
         # wait for all threads to finish
         while len(self.running_threads) > 0:

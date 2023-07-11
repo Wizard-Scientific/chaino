@@ -14,8 +14,8 @@ clean:
 	rm -rf src/*.egg-info
 
 test:
-	pytest ./src
+	pytest -p no:warnings ./src
 
 -include ./src/test-one.mk
 test-one:
-	pytest -k $(TEST_ONE) ./src
+	pytest -p no:warnings -k $(TEST_ONE) ./src

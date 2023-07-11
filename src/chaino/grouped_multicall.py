@@ -24,7 +24,7 @@ class GroupedMulticall:
             fn_call = [function]
             fn_call.extend(input_value)
 
-            checksum_address = Web3.to_checksum_address(contract_address)
+            checksum_address = Web3.toChecksumAddress(contract_address)
             contract_calls.append(
                 Call(
                     target=checksum_address,
@@ -48,7 +48,7 @@ class GroupedMulticall:
             function_abi = convert_signature_to_abi(function)
             contract = self.w3.eth.contract(contract_address, abi=[function_abi])
             fn = contract.functions[function_abi["name"]]
-            gas_estimate = fn(*input_value).estimate_gas()
+            gas_estimate = fn(*input_value).estimateGas()
 
             # obtain gas limit from multicall
             fn_call = [function]
