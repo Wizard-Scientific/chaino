@@ -64,13 +64,13 @@ def level_vectors(contract_address_vector, function_vector, input_vector, block_
         block_id_vector
     ))
 
-def init_logger():
+def init_logger(level="INFO"):
     logger = logging.getLogger("chaino")
 
     # only the first invocation will configure this
     if not logger.handlers:
 
-        level = logging.getLevelName("INFO")
+        level = logging.getLevelName(level)
         logger.setLevel(level)
         logger.propagate = False
 

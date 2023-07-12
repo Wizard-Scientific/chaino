@@ -38,7 +38,7 @@ setup(
     install_requires=[
         "pandas",
         "numpy",
-        "web3=5.28.0",
+        "web3==5.28.0",
         "python-dotenv",
         "click",
         "multicall",

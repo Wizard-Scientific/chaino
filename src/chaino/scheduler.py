@@ -2,23 +2,14 @@ import pandas as pd
 
 import os
 import time
-import json
-import copy
 import logging
-import pickle
 import threading
 
-import requests
-
-from dotenv import load_dotenv
-load_dotenv()
-
-from .grouped_multicall import GroupedMulticall
 from .utils import init_logger
 
 
 class Scheduler:
-    def __init__(self, w3, chain, num_threads=2):
+    def __init__(self, w3, chain, state_path="/tmp/chaino", tick_delay=0.1, num_threads=4):
         init_logger()
 
         self.w3 = w3
@@ -31,72 +22,51 @@ class Scheduler:
         self.tasks = []
 
         self.slow_mode = False
-        self.tick_delay = 500
+        self.tick_delay = tick_delay
         self.good_runs = 0
         self.good_runs_reset = 500
 
-        self.state_path = "/tmp"
-
-    def add_task(self, contract_address, function, input_value, block_identifier=None):
-        "Add one task to be executed"
-        self.tasks.append((contract_address, function, input_value, block_identifier))
-        logging.getLogger("chaino").debug(f"Added {contract_address, function, input_value, block_identifier} to task queue")
-
-    def run_multicall(self, thread, mc):
-        logging.getLogger("chaino").debug(f"Started thread {thread.name}.")
-        filename = f"{self.state_path}/{self.timestamp}-results.json"
-
-        try:
-            result = mc()
-        except Exception as e:
-            logging.getLogger("chaino").error(f"Multicall failed: {e}")
-
-        # obtain lock
-        with self.lock:
-            # get current state
-            try:
-                with open (filename, "r") as f:
-                    current_state = json.load(f)
-            except:
-                current_state = {}
-
-            # update current state
-            current_state.update(result)
-
-            # write results as json
-            with open (filename, "w") as f:
-                json.dump(current_state, f)
-
-        logging.getLogger("chaino").info(f"Thread finished: {thread.name}; updated state: {filename}")
-        self.running_threads.remove(thread)
-
-    def start(self):
-        "Start the scheduler"
-        logging.getLogger("chaino").info(f"Starting scheduler with {len(self.tasks)} tasks")
+        self.set_state_path(state_path)
 
         # create timestamp as YYYY-MM-DD-HH-MM-SS
         self.timestamp = time.strftime("%Y-%m-%d-%H-%M-%S")
 
-        gmc = GroupedMulticall(self.w3, self.tasks, margin=0.6)
-        for mc in gmc():
+    def set_state_path(self, state_path):
+        self.state_path = state_path
+        if not os.path.exists(self.state_path):
+            os.makedirs(self.state_path)
 
-            currently_running = 1e99
-            while currently_running >= self.num_threads:
-                with self.lock:
-                    currently_running = len(self.running_threads)
+    def run_slow_if_necessary(self):
+        # if another thread received a 429, this will be set
+        if self.slow_mode is True:
+            time.sleep(self.num_threads)
 
-                if self.halt_event.is_set():
-                    logging.getLogger("chaino").info("Halt event is set, exiting")
+    def slow_down(self):
+        if self.slow_mode is False:
+            self.slow_mode = True
+            if self.good_runs >= 0:
+                self.tick_delay += 0.005
+                self.good_runs = -1
+            delay = 60
+            logging.getLogger("chaino").info(f"sleep for {delay} seconds; tick delay is now {self.tick_delay}")
+            time.sleep(delay)
+            self.slow_mode = False
+        
 
-                time.sleep(0.1)
-            
-            thread = threading.Thread(target=self.run_multicall)
-            thread._args = (thread, mc)
-            self.running_threads.add(thread)
-            thread.start()
+    def consider_speedup(self):
+        if self.good_runs < 0:
+            return
 
-        # wait for all threads to finish
-        while len(self.running_threads) > 0:
-            time.sleep(0.1)
+        with self.lock:
+            self.good_runs += 1
+            if self.good_runs == self.good_runs_reset:
+                self.good_runs = 0
+                self.tick_delay -= 0.005
+                if self.tick_delay <= 0:
+                    self.tick_delay = 0.01
+                logging.getLogger("chaino").info(f"Lowering tick delay to {self.tick_delay} after {self.good_runs_reset} good runs")
 
-        logging.getLogger("chaino").info("All tasks completed")
+    def tick(self):
+        self.run_slow_if_necessary()
+        self.consider_speedup()
+        time.sleep(self.tick_delay)
