@@ -9,6 +9,7 @@ from chaino.scheduler import Scheduler
 from chaino.call_scheduler import CallScheduler
 from chaino.block_scheduler import BlockScheduler
 from chaino.rpc import RPC
+from chaino.nested_filestore import NestedFilestore
 
 
 from chaino.utils import init_logger
@@ -22,19 +23,23 @@ def w3():
     return _w3
 
 @pytest.fixture()
-def scheduler(w3):
-    return Scheduler(w3, chain="fantom")
-
-@pytest.fixture()
-def block_scheduler(rpc_fantom_ankr, rpc_fantom_ftmtools):
-    scheduler = BlockScheduler()
+def block_scheduler_multi(rpc_fantom_ankr, rpc_fantom_ftmtools):
+    scheduler = BlockScheduler(state_path="/tmp/chaino-test")
     scheduler.add_rpc(rpc_fantom_ankr)
     scheduler.add_rpc(rpc_fantom_ftmtools)
     return scheduler
 
 @pytest.fixture()
-def call_scheduler(w3):
-    return CallScheduler(w3, chain="fantom")
+def block_scheduler(rpc_fantom_ftmtools):
+    scheduler = BlockScheduler(state_path="/tmp/chaino-test")
+    scheduler.add_rpc(rpc_fantom_ftmtools)
+    return scheduler
+
+@pytest.fixture()
+def call_scheduler(rpc_fantom_ftmtools):
+    scheduler = CallScheduler(state_path="/tmp/chaino-test")
+    scheduler.add_rpc(rpc_fantom_ftmtools)
+    return scheduler
 
 @pytest.fixture()
 def rpc_fantom_ankr():
@@ -47,3 +52,8 @@ def rpc_fantom_ftmtools():
     _w3 = Web3(HTTPProvider("https://rpc.ftm.tools"))
     _w3.middleware_onion.add(simple_cache_middleware)
     return RPC(_w3, num_threads=4)
+
+
+@pytest.fixture()
+def filestore():
+    return NestedFilestore("/tmp/nested", [4, 3, 2])

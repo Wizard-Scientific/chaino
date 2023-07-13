@@ -1,7 +1,6 @@
 import os
 import shutil
 
-
 class NestedFilestore:
     """
     NestedFilestore is a filestore that stores files in a nested directory structure.
@@ -28,7 +27,10 @@ class NestedFilestore:
 
     def get(self, index):
         "given an index, return a file handle pointing to the file if it exists"
-        return open(self.resolve(index), "rb")
+        try:
+            return open(self.resolve(index), "rb")
+        except FileNotFoundError:
+            raise ValueError(f"{index} ({self.resolve(index)}) does not exist.")
     
     def resolve(self, index, path_only=False):
         "convert an index to a fully qualified filesystem path"
