@@ -1,0 +1,57 @@
+import os
+import shutil
+
+
+class NestedFilestore:
+    """
+    NestedFilestore is a filestore that stores files in a nested directory structure.
+    """
+
+    def __init__(self, root_path, hierarchy_order):
+        "args are root filesystem path, and order of hierarchy starting from leaf back to the root"
+        self.root_path = root_path
+        self.hierarchy_order = hierarchy_order
+    
+    def exists(self, index):
+        "does the specified index exist as a file? If it exists, return True"
+        return os.path.exists(self.resolve(index))
+    
+    def put(self, filename, index):
+        "given the path to an existing file, and given an index, copy the file to the file store and put it in the right place, creating directories as needed."
+        if not self.exists(index):
+            dst_filename = self.resolve(index)
+            dst_path = self.resolve(index, path_only=True)
+            os.makedirs(dst_path, exist_ok=True)
+            shutil.copy(filename, dst_filename)
+        return dst_filename
+
+    def get(self, index):
+        "given an index, return a file handle pointing to the file if it exists"
+        return open(self.resolve(index), "rb")
+    
+    def resolve(self, index, path_only=False):
+        "convert an index to a fully qualified filesystem path"
+
+        index_str = str(index)
+        # get the leaf id, which is the last N digits of the index
+        leaf_order = self.hierarchy_order[0]
+        # leaf_id = index_str[-leaf_order:]
+        leaf_filename = f"{index_str}.bin"
+        # remove the right-most leaf_order digits from the string
+        index_str = index_str[:-leaf_order]
+
+        subdirs = []
+        for level in self.hierarchy_order[1:]:
+            # get the subdir id, which is the last N digits of the index
+            subdir_id = index_str[-level:]
+            # remove right-most level digits from the string
+            index_str = index_str[:-level]
+            subdirs.insert(0, subdir_id)
+        # finally, prepend the remaining index_str as the top-level dir
+        subdirs.insert(0, index_str)
+
+        filename = os.path.join(self.root_path, *subdirs, leaf_filename)
+
+        if path_only:
+            return os.path.dirname(filename)
+        return filename
