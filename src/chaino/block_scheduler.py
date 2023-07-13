@@ -8,34 +8,18 @@ from .scheduler import Scheduler
 
 
 class BlockScheduler(Scheduler):
+    def __init__(self, project_name="chaino", **kwargs):
+        self.project_name = project_name
+        super().__init__(**kwargs)
+
     def add_task(self, block_identifier):
         "Add one task to be executed"
 
         # if file exists, do not add the task
-        filename = f"{self.state_path}/{self.chain}-block-{block_identifier}.pkl"
+        filename = f"{self.state_path}/{self.project_name}-block-{block_identifier}.pkl"
         if not os.path.exists(filename):
             self.tasks.append((block_identifier))        
-            logging.getLogger("chaino").debug(f"Added block {block_identifier} to task queue")
-
-    def run_task(self, thread, block_identifier):
-        logging.getLogger("chaino").debug(f"Started thread {thread.name}.")
-
-        block = None
-        while block is None:
-            self.run_slow_if_necessary()
-
-            try:
-                block = self.w3.eth.getBlock(block_identifier, True)
-            except:
-                logging.getLogger("chaino").warning(f"Thread {thread} failed to get block {block_identifier}")
-                self.slow_down()
-
-        filename = f"{self.state_path}/{self.chain}-block-{block_identifier}.pkl"
-        with open(filename, "wb") as f:
-            pickle.dump(block, f)
-
-        logging.getLogger("chaino").info(f"Wrote: {filename}")
-        self.running_threads.remove(thread)
+            # logging.getLogger("chaino").debug(f"Added block {block_identifier} to task queue")
 
     def start(self):
         "Start the scheduler"
@@ -43,27 +27,28 @@ class BlockScheduler(Scheduler):
 
         for block_identifier in self.tasks:
 
-            currently_running = 1e99
-            # wait until there are fewer than num_threads running
-            while currently_running >= self.num_threads:
-                with self.lock:
-                    currently_running = len(self.running_threads)
+            # wait until an RPC is available
+            available_rpc = None
+            while available_rpc is None:
+                available_rpc = self.get_available_rpc()
+                if available_rpc is None:
+                    time.sleep(0.001)
 
-                if self.halt_event.is_set():
-                    logging.getLogger("chaino").info("Halt event is set, exiting")
+            # dispatch the task
+            available_rpc.dispatch_task(self.get_block, block_identifier)
 
-                time.sleep(0.001)
-
-            # start a new thread
-            thread = threading.Thread(target=self.run_task)
-            thread._args = (thread, block_identifier)
-            self.running_threads.add(thread)
-            thread.start()
-
-            self.tick()
-
-        # wait for all threads to finish
-        while len(self.running_threads) > 0:
+        logging.getLogger("chaino").info("Waiting for tasks to finish...")
+        while self.any_rpc_running():
             time.sleep(0.1)
-
         logging.getLogger("chaino").info("All tasks completed")
+
+    def get_block(self, w3, block_identifier):
+        block = w3.eth.getBlock(block_identifier, True)
+        filename = os.path.join(
+            self.state_path,
+            f"{self.project_name}-block-{block_identifier}.pkl"
+        )
+        with open(filename, "wb") as f:
+            pickle.dump(block, f)
+        # logging.getLogger("chaino").debug(f"Saved {filename}")
+        return block

@@ -1,0 +1,99 @@
+import os
+import time
+import pickle
+import logging
+import threading
+
+
+class RPC:
+    def __init__(self, w3, tick_delay=0.1, slow_timeout=30, num_threads=4):
+        self._w3 = w3
+        self.num_threads = num_threads
+
+        self.halt_event = threading.Event()
+        self.lock = threading.Lock()
+        self.running_threads = set()
+
+        self.slow_mode = False
+        self.slow_timeout = slow_timeout
+        self.tick_delay = tick_delay
+        self.good_runs = 0
+        self.good_runs_reset = 200
+        self.too_fast = []
+
+        self.task_counter = 0
+
+    @property
+    def w3(self):
+        # enforce a delay by calling tick before returning w3
+        self.tick()
+        return self._w3
+
+    def any_available_threads(self):
+        with self.lock:
+            return len(self.running_threads) < self.num_threads
+
+    def any_threads_running(self):
+        with self.lock:
+            return len(self.running_threads) > 0
+
+    def run_slow_if_necessary(self):
+        # if another thread received a 429, this will be set
+        while self.slow_mode is True:
+            time.sleep(0.01)
+
+    def slow_down(self):
+        with self.lock:
+            check_slow_mode = self.slow_mode
+
+        if check_slow_mode is False:
+            # other threads on this RPC need to stop
+            self.slow_mode = True
+
+            logging.getLogger("chaino").warning(f"{self} too fast: {self.tick_delay}")
+
+            self.too_fast.append(self.tick_delay)
+            self.tick_delay += 0.005
+
+            time.sleep(self.slow_timeout)
+            self.slow_mode = False
+        
+    def consider_speedup(self):
+        with self.lock:
+            self.good_runs += 1
+            if self.good_runs >= self.good_runs_reset:
+                self.good_runs = 0
+                self.good_runs_reset = int(self.good_runs_reset * 1.1)
+                self.tick_delay -= 0.001
+                if self.tick_delay <= 0:
+                    self.tick_delay = 0.001
+                logging.getLogger("chaino").info(f"{self} faster: {self.tick_delay}")
+
+    def tick(self):
+        self.run_slow_if_necessary()
+        self.consider_speedup()
+        time.sleep(self.tick_delay)
+
+    def fetch_result(self, task_id, task_fn, *args):
+        result = None
+        while result is None:
+            self.run_slow_if_necessary()
+            try:
+                result = task_fn(self.w3, *args)
+            except Exception as e:
+                logging.getLogger("chaino").warning(f"{self} failed {task_id}: {e}")
+                self.slow_down()
+        self.running_threads.remove(task_id)
+
+    def dispatch_task(self, task_fn, *args):
+        task_id = f"{task_fn.__name__}-{self.task_counter}"
+        self.task_counter += 1
+        logging.getLogger("chaino").debug(f"{self} {task_id}")
+
+        thread = threading.Thread(target=self.fetch_result, args=(task_id, task_fn, *args))
+        self.running_threads.add(task_id)
+        thread.start()
+        return thread
+
+    def __repr__(self):
+        return f"<RPC {self._w3.provider.endpoint_uri[:25]}>"
