@@ -6,13 +6,9 @@ import random
 import logging
 import threading
 
-from .utils import init_logger
-
 
 class Scheduler:
-    def __init__(self, state_path="/tmp/chaino", log_level="INFO"):
-        init_logger(level=log_level)
-
+    def __init__(self, state_path="/tmp/chaino"):
         self.rpcs = []
         self.tasks = []
 

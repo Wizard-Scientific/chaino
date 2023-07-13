@@ -11,6 +11,10 @@ from chaino.block_scheduler import BlockScheduler
 from chaino.rpc import RPC
 
 
+from chaino.utils import init_logger
+init_logger(level="INFO")
+
+
 @pytest.fixture()
 def w3():
     _w3 = Web3(HTTPProvider("https://rpc.ankr.com/fantom"))
