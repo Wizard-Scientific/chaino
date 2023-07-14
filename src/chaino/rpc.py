@@ -77,6 +77,7 @@ class RPC:
         while result is None:
             self.run_slow_if_necessary()
             try:
+                # this implements the tick delay implicitly
                 result = task_fn(self.w3, *args)
             except Exception as e:
                 logging.getLogger("chaino").warning(f"{self} failed {task_id}: {e}")

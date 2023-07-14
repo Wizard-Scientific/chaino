@@ -9,67 +9,43 @@ from . import Scheduler
 
 
 class CallScheduler(Scheduler):
-    def add_task(self, contract_address, function, input_value, block_identifier=None):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filename = f"{self.state_path}/{self.project_name}-{self.timestamp}-results.json"
+
+    def add_task(self, contract_address, function, input_value, block_number=None):
         "Add one call to the task queue"
-        self.tasks.append((contract_address, function, input_value, block_identifier))
-        # logging.getLogger("chaino").debug(f"Added call {contract_address, function, input_value, block_identifier} to task queue")
-
-    def run_task(self, thread, mc):
-        logging.getLogger("chaino").debug(f"Started thread {thread.name}.")
-        filename = f"{self.state_path}/{self.timestamp}-results.json"
-
-        # loop until successful; errors out after 10 tries
-        try:
-            result = mc()
-        except Exception as e:
-            logging.getLogger("chaino").error(f"Multicall failed: {e}")
-
-        # obtain lock
-        with self.lock:
-            # get current state
-            try:
-                with open (filename, "r") as f:
-                    current_state = json.load(f)
-            except:
-                current_state = {}
-
-            # update current state
-            current_state.update(result)
-
-            # write results as json
-            with open (filename, "w") as f:
-                json.dump(current_state, f)
-
-        logging.getLogger("chaino").info(f"Thread finished: {thread.name}; updated state: {filename}")
-        self.running_threads.remove(thread)
+        self.tasks.append((contract_address, function, input_value, block_number))
+        logging.getLogger("chaino").debug(f"Added call {contract_address, function, input_value, block_number} to task queue")
 
     def start(self):
         "Start the scheduler"
         logging.getLogger("chaino").info(f"Starting scheduler with {len(self.tasks)} tasks")
 
-        gmc = GroupedMulticall(self.w3, self.tasks, margin=0.6)
+        rpc = self.get_available_rpc()
+        gmc = GroupedMulticall(rpc._w3, self.tasks, margin=0.6)
         for mc in gmc():
+            # wait for a thread to become available
+            while not rpc.any_available_threads():
+                time.sleep(0.01)
 
-            currently_running = 1e99
-            while currently_running >= self.num_threads:
-                with self.lock:
-                    currently_running = len(self.running_threads)
+            # dispatch the task
+            rpc.dispatch_task(self.get_result, mc)
 
-                if self.halt_event.is_set():
-                    logging.getLogger("chaino").info("Halt event is set, exiting")
-
-                time.sleep(0.1)
-            
-            thread = threading.Thread(target=self.run_task)
-            thread._args = (thread, mc)
-            self.running_threads.add(thread)
-            thread.start()
-
-        # wait for all threads to finish
-        while len(self.running_threads) > 0:
+        logging.getLogger("chaino").info("Waiting for tasks to finish...")
+        while self.any_rpc_running():
             time.sleep(0.1)
-
         logging.getLogger("chaino").info("All tasks completed")
 
-    def get_call_result(self, w3, contract_address, function, input_value, block_identifier=None):
-        pass
+        return self.results.copy()
+
+    def get_result(self, w3, mc):
+        # must take w3 as the first option, even though we ignore it
+
+        result = mc()
+        with self.lock:
+            self.results.update(result)
+            with open (self.filename, "w") as f:
+                json.dump(self.results, f)
+        return result
+    

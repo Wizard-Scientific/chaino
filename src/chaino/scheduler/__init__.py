@@ -11,6 +11,7 @@ class Scheduler:
 
         self.rpcs = []
         self.tasks = []
+        self.results = {}
 
         self.halt_event = threading.Event()
         self.lock = threading.Lock()
