@@ -17,13 +17,16 @@ class NestedFilestore:
         "does the specified index exist as a file? If it exists, return True"
         return os.path.exists(self.resolve(index))
     
-    def put(self, filename, index):
+    def put(self, filename, index, move=False):
         "given the path to an existing file, and given an index, copy the file to the file store and put it in the right place, creating directories as needed."
         dst_filename = self.resolve(index)
         if not self.exists(index):
             dst_path = self.resolve(index, path_only=True)
             os.makedirs(dst_path, exist_ok=True)
-            shutil.copy(filename, dst_filename)
+            if move:
+                shutil.move(filename, dst_filename)
+            else:
+                shutil.copy(filename, dst_filename)
         return dst_filename
 
     def get(self, index):
