@@ -2,16 +2,11 @@ import os
 import time
 import pickle
 import logging
-import threading
 
-from .scheduler import Scheduler
+from . import Scheduler
 
 
 class BlockScheduler(Scheduler):
-    def __init__(self, project_name="chaino", **kwargs):
-        self.project_name = project_name
-        super().__init__(**kwargs)
-
     def add_task(self, block_identifier):
         "Add one task to be executed"
 

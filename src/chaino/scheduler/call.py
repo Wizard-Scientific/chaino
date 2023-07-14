@@ -4,15 +4,15 @@ import json
 import logging
 import threading
 
-from .grouped_multicall import GroupedMulticall
-from .scheduler import Scheduler
+from ..grouped_multicall import GroupedMulticall
+from . import Scheduler
 
 
 class CallScheduler(Scheduler):
     def add_task(self, contract_address, function, input_value, block_identifier=None):
         "Add one call to the task queue"
         self.tasks.append((contract_address, function, input_value, block_identifier))
-        logging.getLogger("chaino").debug(f"Added call {contract_address, function, input_value, block_identifier} to task queue")
+        # logging.getLogger("chaino").debug(f"Added call {contract_address, function, input_value, block_identifier} to task queue")
 
     def run_task(self, thread, mc):
         logging.getLogger("chaino").debug(f"Started thread {thread.name}.")
@@ -70,3 +70,6 @@ class CallScheduler(Scheduler):
             time.sleep(0.1)
 
         logging.getLogger("chaino").info("All tasks completed")
+
+    def get_call_result(self, w3, contract_address, function, input_value, block_identifier=None):
+        pass

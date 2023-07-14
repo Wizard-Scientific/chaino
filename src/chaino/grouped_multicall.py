@@ -1,6 +1,3 @@
-import random
-import string
-
 from multicall import Call, Multicall
 from web3 import Web3
 

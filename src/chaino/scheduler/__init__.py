@@ -1,21 +1,19 @@
-import pandas as pd
-
 import os
 import time
 import random
-import logging
 import threading
 
 
 class Scheduler:
-    def __init__(self, state_path="/tmp/chaino"):
+    def __init__(self, state_path="/tmp/chaino", project_name="chaino"):
+        self.project_name = project_name
+        self.set_state_path(state_path)
+
         self.rpcs = []
         self.tasks = []
 
         self.halt_event = threading.Event()
         self.lock = threading.Lock()
-
-        self.set_state_path(state_path)
 
         # create timestamp as YYYY-MM-DD-HH-MM-SS
         self.timestamp = time.strftime("%Y-%m-%d-%H-%M-%S")

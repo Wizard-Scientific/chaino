@@ -1,6 +1,7 @@
 import os
 import shutil
 
+
 class NestedFilestore:
     """
     NestedFilestore is a filestore that stores files in a nested directory structure.
