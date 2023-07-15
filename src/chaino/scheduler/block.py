@@ -3,18 +3,25 @@ import time
 import pickle
 import logging
 
+from ..nested_filestore import NestedFilestore
 from . import Scheduler
 
 
 class BlockScheduler(Scheduler):
-    def add_task(self, block_number):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filestore = NestedFilestore(self.state_path, [4, 3, 2])
+
+    def add_task(self, block_number, check_existing=True):
         "Add one task to be executed"
 
         # if file exists, do not add the task
         filename = f"{self.state_path}/{self.project_name}-block-{block_number}.pkl"
-        if not os.path.exists(filename):
-            self.tasks.append((block_number))        
-            # logging.getLogger("chaino").debug(f"Added block {block_number} to task queue")
+        if check_existing and os.path.exists(filename):
+            return
+
+        self.tasks.append((block_number))
+        # logging.getLogger("chaino").debug(f"Added block {block_number} to task queue")
 
     def start(self):
         "Start the scheduler"
@@ -42,7 +49,7 @@ class BlockScheduler(Scheduler):
             self.state_path,
             f"{self.project_name}-block-{block_number}.pkl"
         )
-        with open(filename, "wb") as f:
+        with self.filestore.writer(block_number, overwrite=True) as f:
             pickle.dump(block, f)
         # logging.getLogger("chaino").debug(f"Saved {filename}")
         return block

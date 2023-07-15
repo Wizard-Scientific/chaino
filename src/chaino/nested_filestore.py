@@ -12,7 +12,8 @@ class NestedFilestore:
         self.root_path = root_path
         self.hierarchy_order = hierarchy_order
         self.pad_character = pad_character
-    
+        self.created_dirs = set()
+
     def exists(self, index):
         "does the specified index exist as a file? If it exists, return True"
         return os.path.exists(self.resolve(index))
@@ -29,6 +30,20 @@ class NestedFilestore:
                 shutil.copy(filename, dst_filename)
         return dst_filename
 
+    def writer(self, index, overwrite=False):
+        "given an index, return a writable file handle pointing to the file UNLESS it exists"
+        dst_filename = self.resolve(index)
+
+        if not overwrite and self.exists(index):
+            raise ValueError(f"{index} ({dst_filename}) already exists.")
+        else:
+            dst_path = os.path.dirname(dst_filename)
+            # ensure we only create each directory once per instance
+            if dst_path not in self.created_dirs:
+                os.makedirs(dst_path, exist_ok=True)
+                self.created_dirs.add(dst_path)
+            return open(dst_filename, "wb")
+    
     def get(self, index):
         "given an index, return a file handle pointing to the file if it exists"
         try:

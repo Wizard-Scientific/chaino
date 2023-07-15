@@ -95,4 +95,5 @@ class RPC:
         return thread
 
     def __repr__(self):
-        return f"<RPC {self._w3.provider.endpoint_uri[:25]}>"
+        rpc_name = self._w3.provider.endpoint_uri.replace("https://", "")
+        return f"<RPC {rpc_name[:25]}>"
