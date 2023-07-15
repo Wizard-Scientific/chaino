@@ -49,3 +49,21 @@ class CallScheduler(Scheduler):
                 json.dump(self.results, f)
         return result
     
+    @classmethod
+    def map_call(cls, rpc, contract_address, function_signature, addresses, block_number=None):
+        "Call one function on one contract for a list of addresses"
+        call_scheduler = cls(
+            project_name=contract_address,
+            state_path="/tmp/fantom-call"
+        )
+        call_scheduler.add_rpc(rpc)
+
+        for address in addresses:
+            call_scheduler.add_task(
+                contract_address=contract_address,
+                function=function_signature,
+                input_value=[address],
+                block_number=block_number,
+            )
+
+        return call_scheduler.start()
