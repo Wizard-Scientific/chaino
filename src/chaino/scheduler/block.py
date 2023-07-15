@@ -16,8 +16,7 @@ class BlockScheduler(Scheduler):
         "Add one task to be executed"
 
         # if file exists, do not add the task
-        filename = f"{self.state_path}/{self.project_name}-block-{block_number}.pkl"
-        if check_existing and os.path.exists(filename):
+        if check_existing and self.filestore.exists(block_number):
             return
 
         self.tasks.append((block_number))
