@@ -18,31 +18,32 @@ class NestedFilestore:
         "does the specified index exist as a file? If it exists, return True"
         return os.path.exists(self.resolve(index))
     
-    def put(self, filename, index, move=False):
+    def put(self, index, filename=None, filehandle=False, move=False, overwrite=False):
         "given the path to an existing file, and given an index, copy the file to the file store and put it in the right place, creating directories as needed."
-        dst_filename = self.resolve(index)
-        if not self.exists(index):
-            dst_path = self.resolve(index, path_only=True)
-            os.makedirs(dst_path, exist_ok=True)
-            if move:
-                shutil.move(filename, dst_filename)
-            else:
-                shutil.copy(filename, dst_filename)
-        return dst_filename
-
-    def writer(self, index, overwrite=False):
-        "given an index, return a writable file handle pointing to the file UNLESS it exists"
         dst_filename = self.resolve(index)
 
         if not overwrite and self.exists(index):
             raise ValueError(f"{index} ({dst_filename}) already exists.")
-        else:
-            dst_path = os.path.dirname(dst_filename)
-            # ensure we only create each directory once per instance
-            if dst_path not in self.created_dirs:
-                os.makedirs(dst_path, exist_ok=True)
-                self.created_dirs.add(dst_path)
+
+        dst_path = os.path.dirname(dst_filename)
+        if dst_path not in self.created_dirs:
+            os.makedirs(dst_path, exist_ok=True)
+            self.created_dirs.add(dst_path)
+
+        if filehandle:
             return open(dst_filename, "wb")
+        elif filename:
+            if move:
+                shutil.move(filename, dst_filename)
+            else:
+                shutil.copy(filename, dst_filename)
+            return dst_filename
+        else:
+            raise ValueError("either filename or filehandle must be specified.")
+
+    def writer(self, index, overwrite=False):
+        "given an index, return a writable file handle pointing to the file UNLESS it exists"
+        return self.put(index, filehandle=True, overwrite=overwrite)
     
     def get(self, index):
         "given an index, return a file handle pointing to the file if it exists"

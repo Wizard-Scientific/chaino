@@ -104,3 +104,29 @@ def init_logger(level="INFO"):
             filename,
             level
         )
+
+def blocks_to_txs_csv(filestore, block_start, block_end):
+    "Stream blocks from filestore and print transactions as CSV"
+
+    fields = [
+        "block_id",
+        "tx_hash",
+        "method",
+        "from",
+        "to",
+        "quantity",
+    ]
+    print(",".join(fields))
+
+    for index in range(block_start, block_end):
+        block = pickle.load(filestore.get(index))
+        for tx in block.transactions:
+            tx_dict = {
+                "block_id": tx["blockNumber"],
+                "tx_hash": tx["hash"].hex(),
+                "method": tx["input"][:10],
+                "from": tx["from"],
+                "to": tx["to"],
+                "quantity": tx["value"],
+            }
+            print(",".join([str(tx_dict[field]) for field in fields]))

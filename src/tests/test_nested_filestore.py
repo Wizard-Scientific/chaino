@@ -19,7 +19,7 @@ def test_filestore_workflow(filestore):
     # ensure the test file does not exist before we start
     shutil.rmtree("/tmp/nested", ignore_errors=True)
     assert not filestore.exists(12345678)
-    filestore.put("src/tests/data/12345678.bin", 12345678)
+    filestore.put(12345678, "src/tests/data/12345678.bin")
     assert filestore.exists(12345678)
     with filestore.get(12345678) as f:
         assert f.read() == b"hi"
