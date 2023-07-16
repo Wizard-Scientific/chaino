@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     version='0.1.0',
@@ -7,7 +7,9 @@ setup(
     packages=[
         'chaino',
     ],
-    scripts=[],
+    scripts=[
+        'scripts/blockchain.py'
+    ],
     include_package_data=True,
     keywords='',
     author='0xidm',

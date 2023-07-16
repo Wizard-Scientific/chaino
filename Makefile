@@ -28,11 +28,11 @@ var:
 fantom-blocks: var
 	python3 ./scripts/blockchain.py download fantom 1 1000 var/fantom
 
-fantom-txs-csv: var
+fantom-transactions: var
 	python3 ./scripts/blockchain.py transactions-csv 1 1000 var/fantom | gzip > var/fantom-txs.csv.gz
 
 bsc-blocks: var
 	python3 ./scripts/blockchain.py download bsc 1 1000 var/bsc
 
-bsc-txs-csv: var
+bsc-transactions: var
 	python3 ./scripts/blockchain.py transactions-csv 1 1000 var/bsc | gzip > var/bsc-txs.csv.gz
