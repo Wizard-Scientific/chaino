@@ -5,8 +5,7 @@ help:
 		
 requirements:
 	pip3 install -U pip
-	pip3 install git+https://github.com/ethereum/web3.py.git
-	pip3 install -e ./src
+	pip3 install -e .
 
 clean:
 	find . -name '*.pyc' -delete
