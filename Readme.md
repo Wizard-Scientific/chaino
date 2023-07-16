@@ -20,10 +20,10 @@ pip install 'git+https://github.com/0xidm/chaino'
 ## Example
 
 Download the first 1000 blocks of the Fantom DAG.
-Then, extract all transactions and write them to a CSV file, with gzip compression.
+Then, extract all transactions and write them to a CSV file.
 
 ```bash
 mkdir -p var
 blockchain.py download fantom 1 1000 var/fantom
-blockchain.py transactions-csv 1 1000 var/fantom | gzip > var/fantom-txs.csv.gz
+blockchain.py transactions-csv 1 1000 var/fantom > var/fantom-txs.csv
 ```
