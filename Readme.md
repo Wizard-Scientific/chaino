@@ -17,7 +17,7 @@ The block files are archived with NestedFilestore, which can manage millions of 
 pip install 'git+https://github.com/0xidm/chaino'
 ```
 
-## Usage
+## Python Example
 
 Download the first 1000 blocks of the Fantom DAG.
 
