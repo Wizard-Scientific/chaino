@@ -8,6 +8,8 @@ Chaino is an EVM blockchain research tool to rapidly download blocks and issue c
 Installation
 ------------
 
+Python 3.9 is required.
+
 .. code-block:: bash
 
    pip install 'git+https://github.com/0xidm/chaino'

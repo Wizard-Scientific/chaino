@@ -5,6 +5,13 @@ Chaino is an EVM blockchain research tool to rapidly:
 - [download blocks](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) from an EVM blockchain
 - [issue calls](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call) against smart contracts
 
+## Online resources
+
+- [Github](https://github.com/0xidm/chaino)
+- [Documentation](https://chaino.readthedocs.org)
+
+## Overview
+
 Chaino can use [multiple RPCs](https://chainlist.org/) in parallel, each with multiple threads.
 Chaino attempts to automatically maximize its speed without abusing the RPC.
 
@@ -15,6 +22,8 @@ Calls are bundled with [GroupedMulticall](chaino/grouped_multicall.py), which is
 A GroupedMulticall can be executed against the current head block or any historical block, as the RPC permits.
 
 ## Installation
+
+Python 3.9 is required.
 
 ```bash
 pip install 'git+https://github.com/0xidm/chaino'
