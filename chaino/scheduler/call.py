@@ -75,11 +75,18 @@ class CallScheduler(Scheduler):
         )
         call_scheduler.add_rpc(rpc)
 
-        for input_value in inputs:
+        for input_vector in inputs:
             call_scheduler.add_task(
                 contract_address=contract_address,
                 function=function_signature,
-                input_value=[input_value],
+                input_value=input_vector,
             )
 
         return call_scheduler.start()
+
+
+def parse_address(item):
+    """
+    Convenience function to parse an address in the special case that the function was called with a single parameter, which was an address.
+    """
+    return item.split(",")[2].split("'")[1]

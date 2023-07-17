@@ -34,12 +34,13 @@ def test_big(call_scheduler):
     call_scheduler.start()
 
 def test_map_call():
-    scheduler = CallScheduler.map_call(
+    result = CallScheduler.map_call(
         rpc=RPC(url="https://rpc.ftm.tools"),
         contract_address="0x21Ada0D2aC28C3A5Fa3cD2eE30882dA8812279B6",
         function_signature="balanceOf(address)(uint256)",
         inputs=[
-            "0x5aa1039D09330DF607F88e72bb9C1E0F66C96AA0",
-            "0x18Bf8D51f7695AA3E63fEA9E99416530c1420511",
+            ["0x5aa1039D09330DF607F88e72bb9C1E0F66C96AA0"],
+            ["0x18Bf8D51f7695AA3E63fEA9E99416530c1420511"],
         ]    
     )
+    assert len(result) == 2
