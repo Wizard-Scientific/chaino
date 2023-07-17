@@ -9,15 +9,15 @@ requirements:
 
 clean:
 	find . -name '*.pyc' -delete
-	rm -rf src/build
-	rm -rf src/*.egg-info
+	rm -rf build
+	rm -rf *.egg-info
 
 test:
-	pytest -p no:warnings ./src
+	pytest -p no:warnings .
 
--include ./src/test-one.mk
+-include ./tests/one.mk
 test-one:
-	pytest -p no:warnings -k $(TEST_ONE) ./src
+	pytest -p no:warnings -k $(TEST_ONE) .
 
 ###
 # Examples

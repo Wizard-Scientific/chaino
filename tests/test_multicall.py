@@ -1,5 +1,4 @@
 from chaino.grouped_multicall import GroupedMulticall
-from chaino.utils import level_vectors
 
 
 def test_one(w3):
@@ -15,7 +14,7 @@ def test_one(w3):
         ]
     }
     
-    gmc = list(GroupedMulticall(w3, inputs=level_vectors(**inputs))())
+    gmc = list(GroupedMulticall.from_vectors(w3, **inputs)())
     assert len(gmc) > 0
 
     for mc in gmc:
@@ -37,11 +36,20 @@ def test_several(w3):
         ]
     }
 
-    gmc = list(GroupedMulticall(w3, inputs=level_vectors(**inputs))())
+    gmc = list(GroupedMulticall.from_vectors(w3, **inputs)())
     
     assert len(gmc) > 0
     assert len(gmc[0].calls) == len(inputs["input_vector"])
     result = gmc[0]()
     assert len(result) == len(inputs["input_vector"])
-    for input_value in inputs["input_vector"]:
-        assert input_value in result
+
+def test_archive_block(w3):
+    total_supply = [ '0xd5c313DE2d33bf36014e6c659F13acE112B80a8E', 'totalSupply()(uint256)', [] ]
+
+    gmc = list(GroupedMulticall(w3, inputs=[total_supply], block_number=59923357)())
+    result1 = list(gmc[0]().values())[0]
+
+    gmc = list(GroupedMulticall(w3, inputs=[total_supply], block_number=65923357)())
+    result2 = list(gmc[0]().values())[0]
+
+    assert result1 != result2

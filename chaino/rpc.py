@@ -2,6 +2,10 @@ import time
 import logging
 import threading
 
+from web3 import Web3
+
+from .utils import convert_signature_to_abi
+
 
 class RPC:
     def __init__(self, w3, tick_delay=0.1, slow_timeout=30, num_threads=4):
@@ -97,3 +101,16 @@ class RPC:
     def __repr__(self):
         rpc_name = self._w3.provider.endpoint_uri.replace("https://", "")
         return f"<RPC {rpc_name[:25]}>"
+
+    def eth_contract_function(self, address, function_signature):
+        checksum_address = Web3.toChecksumAddress(address)
+        function_abi = convert_signature_to_abi(function_signature)
+        contract = self._w3.eth.contract(address, abi=[function_abi])
+        return contract.functions[function_abi["name"]]
+
+    def eth_call(self, address, function_signature, block_number=None, *vargs):
+        fn = self.eth_contract_function(address, function_signature)
+        if block_number is None:
+            return fn(*args).call()
+        else:
+            return fn(*args).call(block_identifier=block_number)

@@ -5,17 +5,17 @@ from .utils import convert_signature_to_abi
 
 
 class GroupedMulticall:
-    def __init__(self, w3, inputs, margin=0.1):
+    def __init__(self, w3, inputs, block_number=None, margin=0.1):
         self.w3 = w3
         self.inputs = inputs
         self.margin = margin
+        self.block_number = block_number
 
     def __call__(self):
         contract_calls = []
-        call_idx = 0
-        for contract_address, function, input_value, block_id in self.inputs:
+        for contract_address, function, input_value in self.inputs:
             if len(contract_calls) == self.max_length:
-                yield Multicall(contract_calls, _w3=self.w3)
+                yield Multicall(contract_calls, block_id=self.block_number, _w3=self.w3)
                 contract_calls = []
 
             fn_call = [function]
@@ -27,13 +27,12 @@ class GroupedMulticall:
                     target=checksum_address,
                     function=fn_call,
                     returns=[(f"[{checksum_address}, {fn_call}]", None)],
-                    block_id=block_id,
                 )
             )
 
         # yield the last one
         if len(contract_calls) > 0:
-            yield Multicall(contract_calls, _w3=self.w3)
+            yield Multicall(contract_calls, block_id=self.block_number, _w3=self.w3)
 
     @property
     def max_length(self):
@@ -41,7 +40,7 @@ class GroupedMulticall:
             if len(self.inputs) == 0:
                 return 0
             # estimate gas used for a single call
-            contract_address, function, input_value, block_id = list(self.inputs)[0]
+            contract_address, function, input_value = list(self.inputs)[0]
             function_abi = convert_signature_to_abi(function)
             contract = self.w3.eth.contract(contract_address, abi=[function_abi])
             fn = contract.functions[function_abi["name"]]
@@ -60,14 +59,13 @@ class GroupedMulticall:
         return self._max_length
 
     @classmethod
-    def from_vectors(cls, w3, contract_address_vector, function_vector, input_vector, block_id_vector=[]):
+    def from_vectors(cls, w3, contract_address_vector, function_vector, input_vector):
         "auto-replicate function_vector if len(1) and len of another one is longer than 1"
 
         max_length = max([
             len(function_vector),
             len(contract_address_vector),
             len(input_vector),
-            len(block_id_vector)
         ])
 
         if len(function_vector) == 1:
@@ -76,15 +74,10 @@ class GroupedMulticall:
             contract_address_vector = contract_address_vector * max_length
         if len(input_vector) == 1:
             input_vector = input_vector * max_length
-        if len(block_id_vector) == 1:
-            block_id_vector = block_id_vector * max_length
-        elif len(block_id_vector) == 0:
-            block_id_vector = [None] * max_length
 
         inputs = list(zip(
             contract_address_vector,
             function_vector,
             input_vector,
-            block_id_vector
         ))
         return cls(w3=w3, inputs=inputs)

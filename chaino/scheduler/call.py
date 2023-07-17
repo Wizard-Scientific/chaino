@@ -9,21 +9,22 @@ from . import Scheduler
 
 
 class CallScheduler(Scheduler):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, block_number=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.block_number = block_number
         self.filename = f"{self.state_path}/{self.project_name}-{self.timestamp}-results.json"
 
-    def add_task(self, contract_address, function, input_value, block_number=None):
+    def add_task(self, contract_address, function, input_value):
         "Add one call to the task queue"
-        self.tasks.append((contract_address, function, input_value, block_number))
-        logging.getLogger("chaino").debug(f"Added call {contract_address, function, input_value, block_number} to task queue")
+        self.tasks.append((contract_address, function, input_value))
+        logging.getLogger("chaino").debug(f"Added call {contract_address, function, input_value} to task queue")
 
     def start(self):
         "Start the scheduler"
         logging.getLogger("chaino").info(f"Starting scheduler with {len(self.tasks)} tasks")
 
         rpc = self.get_available_rpc()
-        gmc = GroupedMulticall(rpc._w3, self.tasks, margin=0.6)
+        gmc = GroupedMulticall(rpc._w3, self.tasks, block_number=self.block_number, margin=0.6)
         for mc in gmc():
             # wait for a thread to become available
             while not rpc.any_available_threads():
@@ -54,7 +55,8 @@ class CallScheduler(Scheduler):
         "Call one function on one contract for a list of addresses"
         call_scheduler = cls(
             project_name=contract_address,
-            state_path="/tmp/fantom-call"
+            state_path="/tmp/fantom-call",
+            block_number=block_number,
         )
         call_scheduler.add_rpc(rpc)
 
@@ -63,7 +65,6 @@ class CallScheduler(Scheduler):
                 contract_address=contract_address,
                 function=function_signature,
                 input_value=[address],
-                block_number=block_number,
             )
 
         return call_scheduler.start()

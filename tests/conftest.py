@@ -3,11 +3,11 @@ import os
 import pytest
 
 from web3 import Web3, HTTPProvider
-from web3.middleware import simple_cache_middleware
+from web3.middleware import simple_cache_middleware, geth_poa_middleware
 
 from chaino.scheduler import Scheduler
-from chaino.call_scheduler import CallScheduler
-from chaino.block_scheduler import BlockScheduler
+from chaino.scheduler.call import CallScheduler
+from chaino.scheduler.block import BlockScheduler
 from chaino.rpc import RPC
 from chaino.nested_filestore import NestedFilestore
 
@@ -45,14 +45,20 @@ def call_scheduler(rpc_fantom_ftmtools):
 def rpc_fantom_ankr():
     _w3 = Web3(HTTPProvider("https://rpc.ankr.com/fantom"))
     _w3.middleware_onion.add(simple_cache_middleware)
-    return RPC(_w3, num_threads=4)
+    return RPC(_w3, num_threads=2)
 
 @pytest.fixture()
 def rpc_fantom_ftmtools():
     _w3 = Web3(HTTPProvider("https://rpc.ftm.tools"))
     _w3.middleware_onion.add(simple_cache_middleware)
-    return RPC(_w3, num_threads=4)
+    return RPC(_w3, num_threads=2)
 
+@pytest.fixture()
+def rpc_bsc():
+    _w3 = Web3(HTTPProvider("https://bsc-dataseed1.ninicoin.io/"))
+    _w3.middleware_onion.add(simple_cache_middleware)
+    _w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    return RPC(_w3, num_threads=2)
 
 @pytest.fixture()
 def filestore():

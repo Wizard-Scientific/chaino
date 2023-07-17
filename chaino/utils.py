@@ -37,34 +37,6 @@ def convert_signature_to_abi(signature):
     }
     return function_abi
 
-def level_vectors(contract_address_vector, function_vector, input_vector, block_id_vector=[]):
-    "auto-replicate function_vector if len(1) and len of another one is longer than 1"
-
-    max_length = max([
-        len(function_vector),
-        len(contract_address_vector),
-        len(input_vector),
-        len(block_id_vector)
-    ])
-
-    if len(function_vector) == 1:
-        function_vector = function_vector * max_length
-    if len(contract_address_vector) == 1:
-        contract_address_vector = contract_address_vector * max_length
-    if len(input_vector) == 1:
-        input_vector = input_vector * max_length
-    if len(block_id_vector) == 1:
-        block_id_vector = block_id_vector * max_length
-    elif len(block_id_vector) == 0:
-        block_id_vector = [None] * max_length
-
-    return list(zip(
-        contract_address_vector,
-        function_vector,
-        input_vector,
-        block_id_vector
-    ))
-
 def init_logger(level="INFO"):
     logger = logging.getLogger("chaino")
 
@@ -110,7 +82,7 @@ def blocks_to_txs_csv(filestore, block_start, block_end):
     "Stream blocks from filestore and print transactions as CSV"
 
     fields = [
-        "block_id",
+        "block_number",
         "tx_hash",
         "method",
         "from",
@@ -123,7 +95,7 @@ def blocks_to_txs_csv(filestore, block_start, block_end):
         block = pickle.load(filestore.get(index))
         for tx in block.transactions:
             tx_dict = {
-                "block_id": tx["blockNumber"],
+                "block_number": tx["blockNumber"],
                 "tx_hash": tx["hash"].hex(),
                 "method": tx["input"][:10],
                 "from": tx["from"],
