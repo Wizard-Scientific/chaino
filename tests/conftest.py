@@ -22,13 +22,7 @@ def w3():
     return _w3
 
 @pytest.fixture()
-def rpc_fantom_ankr():
-    _w3 = Web3(HTTPProvider("https://rpc.ankr.com/fantom"))
-    _w3.middleware_onion.add(simple_cache_middleware)
-    return RPC(_w3, num_threads=2)
-
-@pytest.fixture()
-def rpc_fantom_ftmtools():
+def rpc_fantom():
     _w3 = Web3(HTTPProvider("https://rpc.ftm.tools"))
     _w3.middleware_onion.add(simple_cache_middleware)
     return RPC(_w3, num_threads=2)
@@ -41,15 +35,17 @@ def rpc_bsc():
     return RPC(_w3, num_threads=2)
 
 @pytest.fixture()
-def block_scheduler(rpc_fantom_ftmtools):
-    scheduler = BlockScheduler(filestore_path="/tmp/chaino-test")
-    scheduler.add_rpc(rpc_fantom_ftmtools)
+def block_scheduler():
+    scheduler = BlockScheduler(
+        chain="fantom",
+        filestore_path="/tmp/chaino-test"
+    )
     return scheduler
 
 @pytest.fixture()
-def call_scheduler(rpc_fantom_ftmtools):
+def call_scheduler(rpc_fantom):
     scheduler = CallScheduler(state_path="/tmp/chaino-test")
-    scheduler.add_rpc(rpc_fantom_ftmtools)
+    scheduler.add_rpc(rpc_fantom)
     return scheduler
 
 @pytest.fixture()

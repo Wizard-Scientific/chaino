@@ -13,7 +13,7 @@ class RPC:
     RPC class for Chaino.
     """
 
-    def __init__(self, w3=None, url=None, chain=None, poa=False, tick_delay=0.1, slow_timeout=30, num_threads=4):
+    def __init__(self, w3=None, url=None, chain=None, poa=False, tick_delay=0.1, slow_timeout=30, num_threads=2):
         # provide some defaults for a few chains
         if not w3 and not url and chain:
             if chain in rpc_defaults.keys():

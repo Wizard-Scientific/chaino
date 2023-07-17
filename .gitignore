@@ -1,7 +1,8 @@
-.env
-settings.mk
-/tests/one.mk
 /var/
+/tests/one.mk
+/**/.env
+/**/settings.mk
+/**/rpc.json
 /**/.cache/
 /**/.ipynb_checkpoints/
 /**/__pycache__/
