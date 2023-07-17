@@ -17,7 +17,23 @@ The block files are archived with NestedFilestore, which can manage millions of 
 pip install 'git+https://github.com/0xidm/chaino'
 ```
 
-## Example
+## Usage
+
+Download the first 1000 blocks of the Fantom DAG.
+
+```python
+from web3 import Web3, HTTPProvider
+from chaino.scheduler.block import BlockScheduler
+from chaino.rpc import RPC
+
+scheduler = BlockScheduler()
+scheduler.add_rpc(RPC(Web3(HTTPProvider("https://rpc.ftm.tools"))))
+for block_number in range(1, 1000):
+    block_scheduler.add_task(block_number=block_number)
+block_scheduler.start()
+```
+
+## Command Line Example
 
 Download the first 1000 blocks of the Fantom DAG.
 Then, extract all transactions and write them to a CSV file.

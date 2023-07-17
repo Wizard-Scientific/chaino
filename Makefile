@@ -5,7 +5,7 @@ help:
 		
 requirements:
 	pip3 install -U pip
-	pip3 install -e .
+	pip3 install -e .[dev]
 
 clean:
 	find . -name '*.pyc' -delete
@@ -14,6 +14,7 @@ clean:
 
 test:
 	pytest -p no:warnings .
+	pylint --disable C0114,R0913 ./chaino
 
 -include ./tests/one.mk
 test-one:
@@ -26,13 +27,13 @@ var:
 	mkdir -p var
 
 fantom-blocks: var
-	python3 ./scripts/blockchain.py download fantom 1 1000 var/fantom
+	./bin/blockchain.py download fantom 1 1000 var/fantom
 
 fantom-transactions: var
-	python3 ./scripts/blockchain.py transactions-csv 1 1000 var/fantom | gzip > var/fantom-txs.csv.gz
+	./bin/blockchain.py transactions-csv 1 1000 var/fantom | gzip > var/fantom-txs.csv.gz
 
 bsc-blocks: var
-	python3 ./scripts/blockchain.py download bsc 1 1000 var/bsc
+	./bin/blockchain.py download bsc 1 1000 var/bsc
 
 bsc-transactions: var
-	python3 ./scripts/blockchain.py transactions-csv 1 1000 var/bsc | gzip > var/bsc-txs.csv.gz
+	./bin/blockchain.py transactions-csv 1 1000 var/bsc | gzip > var/bsc-txs.csv.gz

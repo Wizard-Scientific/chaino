@@ -10,12 +10,15 @@ from multicall.signature import parse_signature
 
 
 def convert_json_to_csv(in_file):
+    "Convert a JSON file to a CSV file"
     with open(in_file) as f:
         data = json.load(f)
     df = pd.DataFrame(data)
     df.to_csv(in_file.replace('.json', '.csv'), index=False)
 
 def convert_signature_to_abi(signature):
+    "Convert a function signature to an ABI"
+
     def get_next_input():
         counter = 0
         while True:
@@ -38,6 +41,8 @@ def convert_signature_to_abi(signature):
     return function_abi
 
 def init_logger(level="INFO"):
+    "Initialize the logger"
+
     logger = logging.getLogger("chaino")
 
     # only the first invocation will configure this

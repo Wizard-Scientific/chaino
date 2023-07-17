@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 
 import click
@@ -21,6 +23,7 @@ def cli():
 @click.argument('block_end', type=int)
 @click.argument('filestore', type=str)
 def download(chain, block_start, block_end, filestore):
+    "Write blocks from blockchain to disk"
     if chain == 'fantom':
         _w3 = Web3(HTTPProvider("https://rpc.ftm.tools"))
         _w3.middleware_onion.add(simple_cache_middleware)
@@ -42,6 +45,7 @@ def download(chain, block_start, block_end, filestore):
 @click.argument('block_end', type=int)
 @click.argument('filestore', type=str)
 def transactions_csv(block_start, block_end, filestore):
+    "Print transactions as CSV"
     filestore = NestedFilestore(
         root_path=os.path.expanduser(filestore),
         hierarchy_order=[4, 3, 2],

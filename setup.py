@@ -8,7 +8,7 @@ setup(
         'chaino',
     ],
     scripts=[
-        'scripts/blockchain.py'
+        'bin/blockchain.py'
     ],
     include_package_data=True,
     keywords='',
@@ -22,10 +22,16 @@ setup(
         "python-dotenv",
         "click",
         "multicall",
-        "pytest",
         "rich",
-        "pdbpp",
     ],
+    extras_require={
+        "dev": [
+            "pytest",
+            "pdbpp",
+            "mypy",
+            "pylint",
+        ]
+    },
     license='MIT',
     zip_safe=True,
 )

@@ -9,7 +9,14 @@ from . import Scheduler
 
 
 class CallScheduler(Scheduler):
+    """
+    Call Scheduler class for Chaino.
+
+    This scheduler is used to call functions on contracts.
+    """
+
     def __init__(self, project_name="chaino", block_number=None, *args, **kwargs):
+        "Initialize the scheduler."
         super().__init__(*args, **kwargs)
         self.results = {}
         self.block_number = block_number
@@ -42,8 +49,8 @@ class CallScheduler(Scheduler):
         return self.results.copy()
 
     def get_result(self, w3, mc):
+        "Get the result of a multicall"
         # must take w3 as the first option, even though we ignore it
-
         result = mc()
         with self.lock:
             self.results.update(result)

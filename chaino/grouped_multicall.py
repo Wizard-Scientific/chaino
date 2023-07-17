@@ -5,6 +5,12 @@ from .utils import convert_signature_to_abi
 
 
 class GroupedMulticall:
+    """
+    GroupedMulticall is a class that groups multiple multicalls together.
+
+    It is used to group multiple multicalls together to reduce the number of RPC calls.
+    """
+
     def __init__(self, w3, inputs, block_number=None, margin=0.1):
         self.w3 = w3
         self.inputs = inputs
@@ -12,6 +18,7 @@ class GroupedMulticall:
         self.block_number = block_number
 
     def __call__(self):
+        "Yield a list of multicalls"
         contract_calls = []
         for contract_address, function, input_value in self.inputs:
             if len(contract_calls) == self.max_length:
@@ -36,6 +43,7 @@ class GroupedMulticall:
 
     @property
     def max_length(self):
+        "Get the maximum number of items that will fit inside a multicall"
         if not hasattr(self, "_max_length"):
             if len(self.inputs) == 0:
                 return 0

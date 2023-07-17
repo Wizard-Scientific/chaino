@@ -8,6 +8,12 @@ from . import Scheduler
 
 
 class BlockScheduler(Scheduler):
+    """
+    Block Scheduler class for Chaino.
+
+    This scheduler is used to download blocks from the blockchain.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filestore = NestedFilestore(self.state_path, [4, 3, 2])
@@ -20,7 +26,7 @@ class BlockScheduler(Scheduler):
             return
 
         self.tasks.append((block_number))
-        # logging.getLogger("chaino").debug(f"Added block {block_number} to task queue")
+        logging.getLogger("chaino").debug(f"Added block {block_number} to task queue")
 
     def start(self):
         "Start the scheduler"
@@ -43,8 +49,9 @@ class BlockScheduler(Scheduler):
         logging.getLogger("chaino").info("All tasks completed")
 
     def get_block(self, w3, block_number):
+        "Get a block from the blockchain and save it to disk"
         block = w3.eth.getBlock(block_number, True)
         with self.filestore.writer(block_number, overwrite=True) as f:
             pickle.dump(block, f)
-        # logging.getLogger("chaino").debug(f"Saved {filename}")
+        logging.getLogger("chaino").debug(f"Saved {block_number}")
         return block

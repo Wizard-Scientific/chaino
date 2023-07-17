@@ -8,6 +8,10 @@ from .utils import convert_signature_to_abi
 
 
 class RPC:
+    """
+    RPC class for Chaino.
+    """
+
     def __init__(self, w3, tick_delay=0.1, slow_timeout=30, num_threads=4):
         self._w3 = w3
         self.num_threads = num_threads
@@ -27,24 +31,29 @@ class RPC:
 
     @property
     def w3(self):
+        "Get the web3 instance."
         # enforce a delay by calling tick before returning w3
         self.tick()
         return self._w3
 
     def any_available_threads(self):
+        "Check if any threads are available."
         with self.lock:
             return len(self.running_threads) < self.num_threads
 
     def any_threads_running(self):
+        "Check if any threads are running."
         with self.lock:
             return len(self.running_threads) > 0
 
     def run_slow_if_necessary(self):
+        "Run slowly if necessary."
         # if another thread received a 429, this will be set
         while self.slow_mode is True:
             time.sleep(0.01)
 
     def slow_down(self):
+        "Slow down the RPC."
         with self.lock:
             check_slow_mode = self.slow_mode
 
@@ -61,6 +70,7 @@ class RPC:
             self.slow_mode = False
         
     def consider_speedup(self):
+        "Consider speeding up the RPC."
         with self.lock:
             self.good_runs += 1
             if self.good_runs >= self.good_runs_reset:
@@ -72,11 +82,13 @@ class RPC:
                 logging.getLogger("chaino").info(f"{self} faster: {self.tick_delay}")
 
     def tick(self):
+        "Advance in time by one tick."
         self.run_slow_if_necessary()
         self.consider_speedup()
         time.sleep(self.tick_delay)
 
     def fetch_result(self, task_id, task_fn, *args):
+        "Fetch the result of a task."
         result = None
         while result is None:
             self.run_slow_if_necessary()
@@ -89,6 +101,7 @@ class RPC:
         self.running_threads.remove(task_id)
 
     def dispatch_task(self, task_fn, *args):
+        "Dispatch a task to the RPC."
         task_id = f"{task_fn.__name__}-{self.task_counter}"
         self.task_counter += 1
         logging.getLogger("chaino").debug(f"{self} {task_id}")
@@ -103,12 +116,14 @@ class RPC:
         return f"<RPC {rpc_name[:25]}>"
 
     def eth_contract_function(self, address, function_signature):
+        "Get a contract function for an address."
         checksum_address = Web3.toChecksumAddress(address)
         function_abi = convert_signature_to_abi(function_signature)
         contract = self._w3.eth.contract(address, abi=[function_abi])
         return contract.functions[function_abi["name"]]
 
     def eth_call(self, address, function_signature, block_number=None, *vargs):
+        "Call a function on a contract."
         fn = self.eth_contract_function(address, function_signature)
         if block_number is None:
             return fn(*args).call()
