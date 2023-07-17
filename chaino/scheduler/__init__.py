@@ -9,9 +9,7 @@ class Scheduler:
     Scheduler class for Chaino.    
     """
 
-    def __init__(self, state_path="/tmp/chaino"):
-        self.set_state_path(state_path)
-
+    def __init__(self):
         self.rpcs = []
         self.tasks = []
 
@@ -20,12 +18,6 @@ class Scheduler:
 
         # create timestamp as YYYY-MM-DD-HH-MM-SS
         self.timestamp = time.strftime("%Y-%m-%d-%H-%M-%S")
-
-    def set_state_path(self, state_path):
-        "Set the path where the scheduler will store its state."
-        self.state_path = state_path
-        if not os.path.exists(self.state_path):
-            os.makedirs(self.state_path)
 
     def add_rpc(self, rpc):
         "Add an RPC to the scheduler."
@@ -46,3 +38,15 @@ class Scheduler:
         for rpc in self.rpcs:
             if rpc.any_threads_running():
                 return True
+
+    def add_task(self):
+        "Add one task to be executed"
+        raise NotImplementedError
+    
+    def start(self):
+        "Start the scheduler"
+        raise NotImplementedError
+    
+    def get_result(self):
+        "Get the result of a task"
+        raise NotImplementedError

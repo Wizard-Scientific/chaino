@@ -15,9 +15,14 @@ class CallScheduler(Scheduler):
     This scheduler is used to call functions on contracts.
     """
 
-    def __init__(self, project_name="chaino", block_number=None, *args, **kwargs):
+    def __init__(self, project_name="chaino", state_path="/tmp/chaino", block_number=None, *args, **kwargs):
         "Initialize the scheduler."
         super().__init__(*args, **kwargs)
+
+        self.state_path = state_path
+        if not os.path.exists(self.state_path):
+            os.makedirs(self.state_path)
+
         self.results = {}
         self.block_number = block_number
         self.filename = f"{self.state_path}/{project_name}-{self.timestamp}-results.json"
@@ -60,7 +65,11 @@ class CallScheduler(Scheduler):
     
     @classmethod
     def map_call(cls, rpc, contract_address, function_signature, inputs, block_number=None):
-        "Call one function on one contract for a list of addresses"
+        """
+        Call one function on one contract for a list of inputs.
+        This is a common pattern when a function is invoked on a list of addresses.
+        """
+
         call_scheduler = cls(
             project_name=contract_address,
             state_path="/tmp/fantom-call",

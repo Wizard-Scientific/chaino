@@ -24,7 +24,7 @@ def cli():
 @click.argument('filestore', type=str)
 def download(chain, block_start, block_end, filestore):
     "Write blocks from blockchain to disk"
-    block_scheduler = BlockScheduler(state_path=filestore)
+    block_scheduler = BlockScheduler(filestore_path=filestore)
     block_scheduler.add_rpc(RPC(chain=chain, tick_delay=0.15, slow_timeout=120, num_threads=2))
     for block_number in range(block_start, block_end):
         block_scheduler.add_task(block_number=block_number)

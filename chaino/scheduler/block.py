@@ -14,9 +14,9 @@ class BlockScheduler(Scheduler):
     This scheduler is used to download blocks from the blockchain.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, filestore_path="/tmp/chaino", *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filestore = NestedFilestore(self.state_path, [3, 3, 3])
+        self.filestore = NestedFilestore(filestore_path, [3, 3, 3])
 
     def add_task(self, block_number, check_existing=True):
         "Add one task to be executed"

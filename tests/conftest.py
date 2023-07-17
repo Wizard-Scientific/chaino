@@ -42,7 +42,7 @@ def rpc_bsc():
 
 @pytest.fixture()
 def block_scheduler(rpc_fantom_ftmtools):
-    scheduler = BlockScheduler(state_path="/tmp/chaino-test")
+    scheduler = BlockScheduler(filestore_path="/tmp/chaino-test")
     scheduler.add_rpc(rpc_fantom_ftmtools)
     return scheduler
 
