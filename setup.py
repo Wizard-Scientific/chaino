@@ -29,6 +29,7 @@ setup(
             "pdbpp",
             "mypy",
             "pylint",
+            "ipython",
         ]
     },
     license='MIT',
