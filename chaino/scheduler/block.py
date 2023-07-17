@@ -44,10 +44,6 @@ class BlockScheduler(Scheduler):
 
     def get_block(self, w3, block_number):
         block = w3.eth.getBlock(block_number, True)
-        filename = os.path.join(
-            self.state_path,
-            f"{self.project_name}-block-{block_number}.pkl"
-        )
         with self.filestore.writer(block_number, overwrite=True) as f:
             pickle.dump(block, f)
         # logging.getLogger("chaino").debug(f"Saved {filename}")

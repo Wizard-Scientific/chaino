@@ -21,10 +21,8 @@ def cli():
 @click.argument('block_end', type=int)
 @click.argument('filestore', type=str)
 def download(chain, block_start, block_end, filestore):
-    block_scheduler = BlockScheduler(
-        project_name=chain,
-        state_path=filestore,
-    )
+
+    block_scheduler = BlockScheduler(state_path=filestore)
 
     if chain == 'fantom':
         _w3 = Web3(HTTPProvider("https://rpc.ankr.com/fantom"))

@@ -5,13 +5,11 @@ import threading
 
 
 class Scheduler:
-    def __init__(self, state_path="/tmp/chaino", project_name="chaino"):
-        self.project_name = project_name
+    def __init__(self, state_path="/tmp/chaino"):
         self.set_state_path(state_path)
 
         self.rpcs = []
         self.tasks = []
-        self.results = {}
 
         self.halt_event = threading.Event()
         self.lock = threading.Lock()

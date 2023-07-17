@@ -9,10 +9,11 @@ from . import Scheduler
 
 
 class CallScheduler(Scheduler):
-    def __init__(self, block_number=None, *args, **kwargs):
+    def __init__(self, project_name="chaino", block_number=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.results = {}
         self.block_number = block_number
-        self.filename = f"{self.state_path}/{self.project_name}-{self.timestamp}-results.json"
+        self.filename = f"{self.state_path}/{project_name}-{self.timestamp}-results.json"
 
     def add_task(self, contract_address, function, input_value):
         "Add one call to the task queue"
