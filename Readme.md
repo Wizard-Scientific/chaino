@@ -1,17 +1,17 @@
 # Chaino
 
-Chaino is a blockchain research tool to rapidly:
+Chaino is an EVM blockchain research tool to rapidly:
 
-- download blocks from a blockchain
-- issue calls against smart contracts
+- [download blocks](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) from an EVM blockchain
+- [issue calls](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call) against smart contracts
 
-Chaino can use multiple RPCs in parallel, each with multiple threads.
+Chaino can use [multiple RPCs](https://chainlist.org/) in parallel, each with multiple threads.
 Chaino attempts to automatically maximize its speed without abusing the RPC.
 
-Blocks are stored as web3.py objects inside Python pickle files.
+Blocks are stored as [web3.py](https://web3py.readthedocs.io/en/v5/web3.eth.html) objects inside [Python pickle](https://docs.python.org/3/library/pickle.html) files.
 The block files are archived with [NestedFilestore](chaino/nested_filestore.py), which can manage millions of files on a filesystem.
 
-Calls are bundled with [GroupedMulticall](chaino/grouped_multicall.py).
+Calls are bundled with [GroupedMulticall](chaino/grouped_multicall.py), which is a wrapper around [Multicall](https://github.com/banteg/multicall.py).
 A GroupedMulticall can be executed against the current head block or any historical block, as the RPC permits.
 
 ## Installation
