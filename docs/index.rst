@@ -15,10 +15,10 @@ Python 3.9 is required.
    pip install 'git+https://github.com/0xidm/chaino'
 
 API
----
+===
 
 BlockScheduler
-^^^^^^^^^^^^^^
+--------------
 
 .. autoclass:: chaino.scheduler.block.BlockScheduler
    :members:
@@ -27,7 +27,7 @@ BlockScheduler
    :noindex:
 
 CallScheduler
-^^^^^^^^^^^^^
+-------------
 
 .. autoclass:: chaino.scheduler.call.CallScheduler
    :members:
@@ -36,7 +36,7 @@ CallScheduler
    :noindex:
 
 Scheduler
-^^^^^^^^^
+---------
 
 .. autoclass:: chaino.scheduler.Scheduler
    :members:
@@ -45,7 +45,7 @@ Scheduler
    :noindex:
 
 RPC
-^^^
+---
 
 .. autoclass:: chaino.rpc.RPC
    :members:
@@ -54,7 +54,7 @@ RPC
    :noindex:
 
 NestedFilestore
-^^^^^^^^^^^^^^^
+---------------
 
 .. autoclass:: chaino.nested_filestore.NestedFilestore
    :members:
@@ -63,7 +63,7 @@ NestedFilestore
    :noindex:
 
 GroupedMulticall
-^^^^^^^^^^^^^^^^
+----------------
 
 .. autoclass:: chaino.grouped_multicall.GroupedMulticall
    :members:
