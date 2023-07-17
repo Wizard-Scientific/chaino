@@ -71,17 +71,15 @@ class CallScheduler(Scheduler):
         """
 
         call_scheduler = cls(
-            project_name=contract_address,
-            state_path="/tmp/fantom-call",
             block_number=block_number,
         )
         call_scheduler.add_rpc(rpc)
 
-        for address in addresses:
+        for input_value in inputs:
             call_scheduler.add_task(
                 contract_address=contract_address,
                 function=function_signature,
-                input_value=[inputs],
+                input_value=[input_value],
             )
 
         return call_scheduler.start()

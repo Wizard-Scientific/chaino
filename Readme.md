@@ -40,24 +40,18 @@ Results will be available as a NestedFilestore in `/tmp/example`.
 Get ERC-20 balances for a list of addresses on Fantom.
 
 ```python
-from web3 import Web3, HTTPProvider
 from chaino.scheduler.call import CallScheduler
 from chaino.rpc import RPC
 
-addresses = [
-    "0x5aa1039D09330DF607F88e72bb9C1E0F66C96AA0",
-    "0x18Bf8D51f7695AA3E63fEA9E99416530c1420511",
-]
-
-scheduler = CallScheduler()
-scheduler.add_rpc(RPC(w3=Web3(HTTPProvider("https://rpc.ftm.tools"))))
-for address in addresses:
-    scheduler.add_task(
-        contract_address="0x21Ada0D2aC28C3A5Fa3cD2eE30882dA8812279B6",
-        function="balanceOf(address)(uint256)",
-        input_value=[address]
-    )
-scheduler.start()
+scheduler = CallScheduler.map_call(
+    rpc=RPC(url="https://rpc.ftm.tools"),
+    contract_address="0x21Ada0D2aC28C3A5Fa3cD2eE30882dA8812279B6",
+    function_signature="balanceOf(address)(uint256)",
+    inputs=[
+        "0x5aa1039D09330DF607F88e72bb9C1E0F66C96AA0",
+        "0x18Bf8D51f7695AA3E63fEA9E99416530c1420511",
+    ]    
+)
 ```
 
 which produces these results:
