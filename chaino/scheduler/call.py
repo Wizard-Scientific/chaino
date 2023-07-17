@@ -52,7 +52,7 @@ class CallScheduler(Scheduler):
         return result
     
     @classmethod
-    def map_call(cls, rpc, contract_address, function_signature, addresses, block_number=None):
+    def map_call(cls, rpc, contract_address, function_signature, inputs, block_number=None):
         "Call one function on one contract for a list of addresses"
         call_scheduler = cls(
             project_name=contract_address,
@@ -65,7 +65,7 @@ class CallScheduler(Scheduler):
             call_scheduler.add_task(
                 contract_address=contract_address,
                 function=function_signature,
-                input_value=[address],
+                input_value=[inputs],
             )
 
         return call_scheduler.start()
