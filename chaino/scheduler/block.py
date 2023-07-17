@@ -16,7 +16,7 @@ class BlockScheduler(Scheduler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filestore = NestedFilestore(self.state_path, [4, 3, 2])
+        self.filestore = NestedFilestore(self.state_path, [3, 3, 3])
 
     def add_task(self, block_number, check_existing=True):
         "Add one task to be executed"

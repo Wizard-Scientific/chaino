@@ -2,7 +2,8 @@ import time
 import logging
 import threading
 
-from web3 import Web3
+from web3 import Web3, HTTPProvider
+from web3.middleware import simple_cache_middleware, geth_poa_middleware
 
 from .utils import convert_signature_to_abi
 
@@ -12,17 +13,35 @@ class RPC:
     RPC class for Chaino.
     """
 
-    def __init__(self, w3, tick_delay=0.1, slow_timeout=30, num_threads=4):
-        self._w3 = w3
-        self.num_threads = num_threads
+    def __init__(self, w3=None, url=None, chain=None, poa=False, tick_delay=0.1, slow_timeout=30, num_threads=4):
+        # provide some defaults for a few chains
+        if not w3 and not url and chain:
+            if chain in rpc_defaults.keys():
+                url = rpc_defaults[chain]
+            else:
+                raise Exception(f"Unknown chain {chain}")
+
+        if w3:
+            self._w3 = w3
+        elif url:
+            self._w3 = Web3(HTTPProvider(url))
+            self._w3.middleware_onion.add(simple_cache_middleware)
+
+            if 'bsc' in url or 'binance' in url or 'avax' in url or 'avalanche' in url:
+                poa = True
+            if poa is True:
+                self._w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        else:
+            raise Exception("Either w3 or url must be provided")
 
         self.halt_event = threading.Event()
         self.lock = threading.Lock()
         self.running_threads = set()
 
+        self.tick_delay = tick_delay
+        self.num_threads = num_threads
         self.slow_mode = False
         self.slow_timeout = slow_timeout
-        self.tick_delay = tick_delay
         self.good_runs = 0
         self.good_runs_reset = 200
         self.too_fast = []
@@ -129,3 +148,22 @@ class RPC:
             return fn(*args).call()
         else:
             return fn(*args).call(block_identifier=block_number)
+
+rpc_defaults = {
+    "fantom": "https://rpc.ftm.tools",
+    "binance": "https://bsc-dataseed1.binance.org/",
+    "arbitrum": "https://arb1.arbitrum.io/rpc",
+    "avalanche": "https://api.avax.network/ext/bc/C/rpc",
+    "ethereum": "https://eth.llamarpc.com",
+}
+
+synonyms = {
+    "bsc": "binance",
+    "eth": "ethereum",
+    "ftm": "fantom",
+    "arb": "arbitrum",
+    "avax": "avalanche",
+}
+
+for synonym in synonyms:
+    rpc_defaults[synonym] = rpc_defaults[synonyms[synonym]]

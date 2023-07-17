@@ -4,16 +4,16 @@ import pytest
 
 
 def test_filestore_resolve(filestore):
-    assert filestore.resolve(12) == "/tmp/nested/00/000/12.bin"
-    assert filestore.resolve(123) == "/tmp/nested/00/000/123.bin"
-    assert filestore.resolve(1234) == "/tmp/nested/00/000/1234.bin"
-    assert filestore.resolve(12345) == "/tmp/nested/00/001/12345.bin"
-    assert filestore.resolve(123456) == "/tmp/nested/00/012/123456.bin"
-    assert filestore.resolve(1234567) == "/tmp/nested/00/123/1234567.bin"
-    assert filestore.resolve(12345678) == "/tmp/nested/01/234/12345678.bin"
-    assert filestore.resolve(123456789) == "/tmp/nested/12/345/123456789.bin"
+    assert filestore.resolve(12) == "/tmp/nested/000/000/12.bin"
+    assert filestore.resolve(123) == "/tmp/nested/000/000/123.bin"
+    assert filestore.resolve(1234) == "/tmp/nested/000/001/1234.bin"
+    assert filestore.resolve(12345) == "/tmp/nested/000/012/12345.bin"
+    assert filestore.resolve(123456) == "/tmp/nested/000/123/123456.bin"
+    assert filestore.resolve(1234567) == "/tmp/nested/001/234/1234567.bin"
+    assert filestore.resolve(12345678) == "/tmp/nested/012/345/12345678.bin"
+    assert filestore.resolve(123456789) == "/tmp/nested/123/456/123456789.bin"
 
-    assert filestore.resolve(12345678, path_only=True) == "/tmp/nested/01/234"
+    assert filestore.resolve(12345678, path_only=True) == "/tmp/nested/012/345"
 
 def test_filestore_workflow(filestore):
     # ensure the test file does not exist before we start

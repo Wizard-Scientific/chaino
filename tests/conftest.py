@@ -54,4 +54,4 @@ def call_scheduler(rpc_fantom_ftmtools):
 
 @pytest.fixture()
 def filestore():
-    return NestedFilestore("/tmp/nested", [4, 3, 2])
+    return NestedFilestore("/tmp/nested", [3, 3, 3])
