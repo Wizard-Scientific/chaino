@@ -52,6 +52,6 @@ class BlockScheduler(Scheduler):
         "Get a block from the blockchain and save it to disk"
         block = w3.eth.getBlock(block_number, True)
         with self.filestore.writer(block_number, overwrite=True) as f:
-            pickle.dump(block, f)
+            pickle.dump(block, f, protocol=pickle.HIGHEST_PROTOCOL)
         logging.getLogger("chaino").debug(f"Saved {block_number}")
         return block
