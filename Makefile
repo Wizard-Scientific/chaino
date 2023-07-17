@@ -20,6 +20,10 @@ test:
 test-one:
 	pytest -p no:warnings -k $(TEST_ONE) .
 
+docs: var
+	rm -rf var/sphinx
+	sphinx-build -b html docs var/sphinx
+
 ###
 # Examples
 
@@ -37,3 +41,5 @@ bsc-blocks: var
 
 bsc-transactions: var
 	./bin/blockchain.py transactions-csv 1 1000 var/bsc | gzip > var/bsc-txs.csv.gz
+
+.PHONY: docs

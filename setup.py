@@ -30,6 +30,10 @@ setup(
             "mypy",
             "pylint",
             "ipython",
+        ],
+        "docs": [
+            "sphinx",
+            "sphinx_rtd_theme",
         ]
     },
     license='MIT',
