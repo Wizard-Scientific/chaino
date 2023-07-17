@@ -9,7 +9,10 @@ Chaino can use multiple RPCs in parallel, each with multiple threads.
 Chaino attempts to automatically maximize its speed without abusing the RPC.
 
 Blocks are stored as web3.py objects inside Python pickle files.
-The block files are archived with NestedFilestore, which can manage millions of files on a filesystem.
+The block files are archived with [NestedFilestore](chaino/nested_filestore.py), which can manage millions of files on a filesystem.
+
+Calls are bundled with [GroupedMulticall](chaino/grouped_multicall.py).
+A GroupedMulticall can be executed against the current head block or any historical block, as the RPC permits.
 
 ## Installation
 
@@ -22,18 +25,17 @@ pip install 'git+https://github.com/0xidm/chaino'
 Download the first 1000 blocks of the Fantom DAG.
 
 ```python
-from web3 import Web3, HTTPProvider
 from chaino.scheduler.block import BlockScheduler
 from chaino.rpc import RPC
 
-scheduler = BlockScheduler(filestore_path="/tmp/example")
-scheduler.add_rpc(RPC(w3=Web3(HTTPProvider("https://rpc.ftm.tools"))))
+scheduler = BlockScheduler(filestore_path="/tmp/chaino-example")
+scheduler.add_rpc(RPC(url="https://rpc.ftm.tools"))
 for block_number in range(1, 1000):
     scheduler.add_task(block_number=block_number)
 scheduler.start()
 ```
 
-Results will be available as a NestedFilestore in `/tmp/example`.
+Results will be available as a [NestedFilestore](chaino/nested_filestore.py) in `/tmp/chaino-example`.
 
 ## Python example: Calling contract functions
 
@@ -64,7 +66,9 @@ which produces these results:
 
 ## Command Line Example
 
-Download the first 1000 blocks of the Fantom DAG.
+The example script [`blockchain.py`](bin/blockchain.py) demonstrates some simple chaino tasks.
+
+On the command line, download the first 1000 blocks of the Fantom DAG.
 Then, extract all transactions and write them to a CSV file.
 
 ```bash
