@@ -21,51 +21,18 @@ def cli():
 @click.argument('block_end', type=int)
 @click.argument('filestore', type=str)
 def download(chain, block_start, block_end, filestore):
-
-    block_scheduler = BlockScheduler(state_path=filestore)
-
     if chain == 'fantom':
-        _w3 = Web3(HTTPProvider("https://rpc.ankr.com/fantom"))
-        _w3.middleware_onion.add(simple_cache_middleware)
-        block_scheduler.add_rpc(RPC(_w3, tick_delay=0.15, slow_timeout=60, num_threads=2))
-
         _w3 = Web3(HTTPProvider("https://rpc.ftm.tools"))
         _w3.middleware_onion.add(simple_cache_middleware)
-        block_scheduler.add_rpc(RPC(_w3, tick_delay=0.15, slow_timeout=60, num_threads=8))
-
-        _w3 = Web3(HTTPProvider("https://ftm.sakurarpc.io"))
-        _w3.middleware_onion.add(simple_cache_middleware)
-        block_scheduler.add_rpc(RPC(_w3, tick_delay=0.15, slow_timeout=60, num_threads=2))
-
-        _w3 = Web3(HTTPProvider("https://fantom-mainnet.public.blastapi.io"))
-        _w3.middleware_onion.add(simple_cache_middleware)
-        block_scheduler.add_rpc(RPC(_w3))
-
-        _w3 = Web3(HTTPProvider("https://fantom.blockpi.network/v1/rpc/public"))
-        _w3.middleware_onion.add(simple_cache_middleware)
-        block_scheduler.add_rpc(RPC(_w3))
-
-        _w3 = Web3(HTTPProvider("https://endpoints.omniatech.io/v1/fantom/mainnet/public"))
-        _w3.middleware_onion.add(simple_cache_middleware)
-        block_scheduler.add_rpc(RPC(_w3, tick_delay=0.15, slow_timeout=60, num_threads=2))
     elif chain == 'bsc':
         _w3 = Web3(HTTPProvider("https://bsc-dataseed1.binance.org/"))
         _w3.middleware_onion.add(simple_cache_middleware)
         _w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-        block_scheduler.add_rpc(RPC(_w3, tick_delay=0.15, slow_timeout=120, num_threads=8))
-
-        _w3 = Web3(HTTPProvider("https://bsc-dataseed1.defibit.io/"))
-        _w3.middleware_onion.add(simple_cache_middleware)
-        _w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-        block_scheduler.add_rpc(RPC(_w3, tick_delay=0.15, slow_timeout=120, num_threads=8))
-
-        _w3 = Web3(HTTPProvider("https://bsc-dataseed1.ninicoin.io/"))
-        _w3.middleware_onion.add(simple_cache_middleware)
-        _w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-        block_scheduler.add_rpc(RPC(_w3, tick_delay=0.15, slow_timeout=120, num_threads=8))
     else:
         raise Exception('Unknown chain')
 
+    block_scheduler = BlockScheduler(state_path=filestore)
+    block_scheduler.add_rpc(RPC(_w3, tick_delay=0.15, slow_timeout=120, num_threads=2))
     for block_number in range(block_start, block_end):
         block_scheduler.add_task(block_number=block_number)
     block_scheduler.start()
