@@ -10,7 +10,12 @@ from ..rpc import RPC
 
 class Scheduler:
     """
-    Scheduler class for Chaino.    
+    Scheduler class for Chaino.
+
+    A Scheduler attempts to send a task to an RPC that has available threads - as quickly as possible, without abusing the RPC.
+    The Scheduler implements a "tick" function that introduces a delay between each task, which is used to remain under RPC rate limits.
+    After a certain number of successful requests to an RPC, the Scheduler reduces the tick delay.
+    If the RPC throws an exception, Scheduler pauses that RPC and increases the tick delay.
     """
 
     def __init__(self, chain=None):
