@@ -13,9 +13,9 @@ Chaino can use `multiple RPCs <https://chainlist.org/>`_ in parallel, each with 
 Chaino attempts to automatically maximize its speed without abusing the RPC.
 
 Blocks are stored as `web3.py <https://web3py.readthedocs.io/en/v5/web3.eth.html>`_ objects inside `Python pickle <https://docs.python.org/3/library/pickle.html>`_ files.
-The block files are archived with `NestedFilestore <chaino/nested_filestore.py>`_, which can manage millions of files on a filesystem.
+The block files are archived with `NestedFilestore <https://chaino.readthedocs.io/en/latest/#nestedfilestore>`_, which can manage millions of files on a filesystem.
 
-Calls are bundled with `GroupedMulticall <chaino/grouped_multicall.py>`_, which is a wrapper around `Multicall <https://github.com/banteg/multicall.py>`_.
+Calls are bundled with `GroupedMulticall <https://chaino.readthedocs.io/en/latest/#groupedmulticall>`_, which is a wrapper around `Multicall <https://github.com/banteg/multicall.py>`_.
 A GroupedMulticall can be executed against the current head block or any historical block, as the RPC permits.
 
 Installation
@@ -39,7 +39,7 @@ Usage
 Python example: Block download with BlockScheduler
 --------------------------------------------------
 
-Download the first 1000 blocks of the Fantom DAG with `BlockScheduler <BlockScheduler_>`_.
+Download the first 1000 blocks of the Fantom DAG with `BlockScheduler <https://chaino.readthedocs.io/en/latest/#blockscheduler>`_.
 
 .. code-block:: python
 
@@ -52,12 +52,12 @@ Download the first 1000 blocks of the Fantom DAG with `BlockScheduler <BlockSche
       scheduler.add_task(block_number=block_number)
    scheduler.start()
 
-Results will be available as a `NestedFilestore <NestedFilestore_>`_ in `/tmp/chaino-example`.
+Results will be available as a `NestedFilestore <https://chaino.readthedocs.io/en/latest/#nestedfilestore>`_ in `/tmp/chaino-example`.
 
 Python example: Calling contract functions with CallScheduler
 --------------------------------------------------------------
 
-Get ERC-20 balances for a list of addresses on Fantom with `CallScheduler <CallScheduler_>`_
+Get ERC-20 balances for a list of addresses on Fantom with `CallScheduler <https://chaino.readthedocs.io/en/latest/#callscheduler>`_
 
 .. code-block:: python
 
