@@ -16,12 +16,11 @@ setup(
     author_email='0xidm@protonmail.com',
     url='https://linktr.ee/0xidm',
     install_requires=[
-        "pandas",
-        "numpy",
         "web3==5.28.0",
-        "python-dotenv",
-        "click",
         "multicall",
+        "python-dotenv",
+        "pandas",
+        "click",
         "rich",
     ],
     extras_require={
