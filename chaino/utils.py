@@ -3,18 +3,10 @@ import json
 import pickle
 import logging
 
-import pandas as pd
 from rich.logging import RichHandler
 from rich.console import Console
 from multicall.signature import parse_signature
 
-
-def convert_json_to_csv(in_file):
-    "Convert a JSON file to a CSV file"
-    with open(in_file) as f:
-        data = json.load(f)
-    df = pd.DataFrame(data)
-    df.to_csv(in_file.replace('.json', '.csv'), index=False)
 
 def convert_signature_to_abi(signature):
     "Convert a function signature to an ABI"

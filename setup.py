@@ -17,9 +17,8 @@ setup(
     url='https://linktr.ee/0xidm',
     install_requires=[
         "web3==5.28.0",
-        "multicall",
+        "multicall==0.7.4",
         "python-dotenv",
-        "pandas",
         "click",
         "rich",
     ],
