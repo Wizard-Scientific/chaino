@@ -35,7 +35,8 @@ Chaino can also run in a Docker container.
 .. code-block:: bash
 
    docker build -t chaino https://raw.githubusercontent.com/0xidm/chaino/main/Dockerfile
-   docker run --rm -it --name chaino -v /tmp/chaino:/mnt/chaino chaino
+   docker volume create chaino
+   docker run --rm -it --name chaino -v chaino:/mnt/chaino chaino
 
 Online resources
 ----------------

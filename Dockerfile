@@ -2,7 +2,7 @@ FROM python:3.9.17-slim-bullseye
 
 RUN apt update \
   && apt -y install \
-  git && \
+  git-core && \
   /bin/rm -f /var/cache/apt/archives/*.deb
 
 RUN adduser \
@@ -10,6 +10,9 @@ RUN adduser \
   --shell /bin/bash \
   --disabled-password \
   "chaino"
+
+RUN mkdir /mnt/chaino \
+  && chown chaino:chaino /mnt/chaino
 
 USER chaino
 WORKDIR /home/chaino
