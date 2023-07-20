@@ -27,17 +27,6 @@ Python 3.9 is required.
 
    pip install 'git+https://github.com/0xidm/chaino'
 
-Docker
-^^^^^^
-
-Chaino can also run in a Docker container.
-
-.. code-block:: bash
-
-   docker build -t chaino https://raw.githubusercontent.com/0xidm/chaino/main/Dockerfile
-   docker volume create chaino
-   docker run --rm -it --name chaino -v chaino:/mnt/chaino chaino
-
 Online resources
 ----------------
 
@@ -106,3 +95,20 @@ Then, extract all transactions and write them to a CSV file.
    mkdir -p var
    blockchain.py download fantom 1 1000 var/fantom
    blockchain.py transactions-csv 1 1000 var/fantom > var/fantom-txs.csv
+
+Docker
+------
+
+Chaino can also run in a Docker container.
+
+.. code-block:: bash
+
+   docker build -t chaino https://raw.githubusercontent.com/0xidm/chaino/main/Dockerfile
+   docker volume create chaino
+   docker run --rm -it --name chaino -v chaino:/mnt/chaino chaino
+
+To provide a custom RPC configuration file, add another ``-v`` option:
+
+.. code-block:: bash
+
+   docker run --rm -it --name chaino -v chaino:/mnt/chaino -v /path/to/rpc.json:/home/chaino/.config/chaino/rpc.json chaino

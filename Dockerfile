@@ -24,4 +24,5 @@ RUN /home/chaino/venv/bin/pip install \
     'git+https://github.com/0xidm/chaino'
 
 RUN echo source /home/chaino/venv/bin/activate >> /home/chaino/.bashrc
+RUN /home/chaino/venv/bin/blockchain.py
 CMD /bin/bash
