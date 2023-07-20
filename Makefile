@@ -25,6 +25,22 @@ docs: var
 	sphinx-build -b html docs var/sphinx
 
 ###
+# Docker
+
+run-docker:
+	docker run \
+		--rm -it \
+		--name chaino \
+		-v /tmp/chaino:/mnt/chaino \
+		chaino:local
+
+build-docker:
+	docker build -t chaino:local .
+
+build-docker-rebuild:
+	docker build --no-cache -t chaino:local .
+
+###
 # Examples
 
 var:

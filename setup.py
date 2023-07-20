@@ -6,6 +6,7 @@ setup(
     description="chaino",
     packages=[
         'chaino',
+        'chaino.scheduler',
     ],
     scripts=[
         'bin/blockchain.py'

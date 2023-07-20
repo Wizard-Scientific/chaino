@@ -27,6 +27,16 @@ Python 3.9 is required.
 
    pip install 'git+https://github.com/0xidm/chaino'
 
+Docker
+^^^^^^
+
+Chaino can also run in a Docker container.
+
+.. code-block:: bash
+
+   docker build -t chaino https://github.com/0xidm/chaino/blob/main/Dockerfile
+   docker run -it -v /tmp/chaino:/mnt/chaino chaino
+
 Online resources
 ----------------
 
