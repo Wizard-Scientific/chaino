@@ -112,3 +112,9 @@ To provide a custom RPC configuration file, add another ``-v`` option:
 .. code-block:: bash
 
    docker run --rm -it --name chaino -v chaino:/mnt/chaino -v /path/to/rpc.json:/home/chaino/.config/chaino/rpc.json chaino
+
+To monitor progress inside a chaino container:
+
+.. code-block:: bash
+
+   docker exec -it chaino tail -f /tmp/chaino.log
