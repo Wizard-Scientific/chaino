@@ -13,8 +13,6 @@ def test_filestore_resolve(filestore):
     assert filestore.resolve(12345678) == "/tmp/nested/012/345/12345678.bin"
     assert filestore.resolve(123456789) == "/tmp/nested/123/456/123456789.bin"
 
-    assert filestore.resolve(12345678, path_only=True) == "/tmp/nested/012/345"
-
 def test_filestore_workflow(filestore):
     # ensure the test file does not exist before we start
     shutil.rmtree("/tmp/nested", ignore_errors=True)

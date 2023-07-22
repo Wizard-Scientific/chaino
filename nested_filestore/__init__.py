@@ -7,10 +7,11 @@ class NestedFilestore:
     NestedFilestore is a filestore that stores files in a nested directory structure.
     """
 
-    def __init__(self, root_path, hierarchy_order, pad_character="0"):
+    def __init__(self, root_path, hierarchy_order, pad_character="0", base=10):
         "args are root filesystem path, and order of hierarchy starting from leaf back to the root"
         self.root_path = root_path
         self.hierarchy_order = hierarchy_order
+        self.base = base
         self.pad_character = pad_character
         self.created_dirs = set()
 
@@ -52,9 +53,15 @@ class NestedFilestore:
         except FileNotFoundError:
             raise ValueError(f"{index} ({self.resolve(index)}) does not exist.")
     
-    def resolve(self, index, path_only=False):
+    def resolve(self, index):
         "convert an index to a fully qualified filesystem path"
 
+        node_path = self.decompose(index)
+        filename = os.path.join(self.root_path, *node_path)
+        return filename
+
+    def decompose(self, index):
+        "based on the hierarchy order, return a tuple of the path components for the given index"
         index_str = str(index)
         # get the leaf id, which is the last N digits of the index
         leaf_order = self.hierarchy_order[0]
@@ -76,8 +83,4 @@ class NestedFilestore:
             # remove right-most level digits from the string
             index_str = index_str[:-level]
 
-        filename = os.path.join(self.root_path, *subdirs, leaf_filename)
-
-        if path_only:
-            return os.path.dirname(filename)
-        return filename
+        return *subdirs, leaf_filename

@@ -22,6 +22,7 @@ setup(
         "python-dotenv",
         "click",
         "rich",
+        "ratarmountcore",
     ],
     extras_require={
         "dev": [
