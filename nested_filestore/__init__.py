@@ -1,4 +1,6 @@
 import os
+import re
+import glob
 import shutil
 
 
@@ -14,6 +16,7 @@ class NestedFilestore:
         self.base = 10 # only base 10 is supported for now
         self.pad_character = pad_character
         self.created_dirs = set()
+        self.index_cache = []
 
     def exists(self, index):
         "does the specified index exist as a file? If it exists, return True"
@@ -89,3 +92,21 @@ class NestedFilestore:
         "given an index, return the path to the container directory"
         node_path = self.decompose(index)
         return os.path.join(*node_path[:-1])
+
+    def _cache_file_list(self):
+        if len(self.index_cache) == 0:
+            file_list = glob.glob(os.path.join(self.root_path, "**/*.bin"), recursive=True)
+            for filename in sorted(file_list):
+                match = re.search(r'([^/]+).bin', filename)
+                if match:
+                    self.index_cache.append(match.group(1))
+
+    @property
+    def smallest_id(self):
+        self._cache_file_list()
+        return self.index_cache[0]
+
+    @property
+    def largest_id(self):
+        self._cache_file_list()
+        return self.index_cache[-1]

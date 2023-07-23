@@ -27,3 +27,10 @@ def test_does_not_exist(filestore):
     # try to get the file and ensure it raises ValueError
     with pytest.raises(ValueError):
         filestore.get(12345678)
+
+def test_filestore_min_max(filestore):
+    filestore.put(12, "tests/data/12345678.bin")
+    filestore.put(1234, "tests/data/12345678.bin")
+    filestore.put(12345678, "tests/data/12345678.bin")
+    assert filestore.smallest_id == "12"
+    assert filestore.largest_id == "12345678"

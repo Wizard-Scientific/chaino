@@ -99,9 +99,19 @@ class TarballHelper:
         return tarball
 
     def tarball_create_if_full(self, index):
+        # if there is a tarball already for this index, do nothing
+        if self.tarball_exists(index):
+            return
+
         with self.tar_lock:
             if self.container_full(index):
                 self.tarball_create(index)
+
+    def tarball_scan(self):
+        "scan the filestore for containers that are full and create tarballs for them"
+        self._cache_file_list()
+        for index in self.index_cache:
+            self.tarball_create_if_full(index)
 
 class TarballNestedFilestore(TarballHelper, NestedFilestore):
     """
@@ -125,7 +135,7 @@ class TarballNestedFilestore(TarballHelper, NestedFilestore):
             raise ValueError(f"{index} already exists inside tarball.")
 
         # put the file as usual
-        return super().put(index=index, *args, **kwargs)
+        return super().put(index, *args, **kwargs)
 
     def get(self, index):
         "given an index, return a file handle pointing to the file if it exists"
