@@ -3,7 +3,7 @@ import time
 import pickle
 import logging
 
-from ..nested_filestore import NestedFilestore
+from nested_filestore import NestedFilestore
 from . import Scheduler
 
 
@@ -14,7 +14,7 @@ class BlockScheduler(Scheduler):
     Block results are stored in a NestedFilestore as pickled web3.py objects.
     """
 
-    def __init__(self, filestore_path="/tmp/chaino", *args, **kwargs):
+    def __init__(self, filestore_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filestore = NestedFilestore(filestore_path, [3, 3, 3])
 

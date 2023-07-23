@@ -11,7 +11,7 @@ class NestedFilestore:
         "args are root filesystem path, and order of hierarchy starting from leaf back to the root"
         self.root_path = root_path
         self.hierarchy_order = hierarchy_order
-        self.base = base
+        self.base = 10 # only base 10 is supported for now
         self.pad_character = pad_character
         self.created_dirs = set()
 
@@ -84,3 +84,8 @@ class NestedFilestore:
             index_str = index_str[:-level]
 
         return *subdirs, leaf_filename
+
+    def get_container_path(self, index):
+        "given an index, return the path to the container directory"
+        node_path = self.decompose(index)
+        return os.path.join(*node_path[:-1])

@@ -16,14 +16,21 @@ class TarballHelper:
     def container_full(self, index):
         "is the container that contains this index full?"
         container_path = os.path.dirname(self.resolve(index))
+        if not os.path.exists(container_path):
+            return False
         if len(os.listdir(container_path)) >= self.container_size:
             return True
 
     def tarball_for_index(self, index):
         "get the tarball filename for the container that contains this index"
+        container_tree = self.decompose(index)
+        container_id = container_tree[-2]
+
         filename = super().resolve(index)
         container_path = os.path.dirname(filename)
-        tarball_filename = os.path.join(container_path, f"{index}.tar")
+        container_container = os.path.dirname(container_path)
+
+        tarball_filename = os.path.join(container_container, f"{container_id}.tar")
         return tarball_filename
 
     def tarball_exists(self, index):
@@ -34,15 +41,30 @@ class TarballHelper:
     def tarball_create(self, index, move=False):
         "create a tarball for the container path that contains this index"
         tarball_filename = self.tarball_for_index(index)
-        container_path = os.path.dirname(self.resolve(index))
+        # container_path = os.path.dirname(self.resolve(index))
+        container_path = self.get_container_path(index)
+        full_container_path = os.path.join(self.root_path, container_path)
 
-        with tarfile.open(tarball_filename, "w") as tarball:
-            # iterate files in the container path and add them to the tarball
-            for filename in os.listdir(container_path):
-                full_filename = os.path.join(container_path, filename)
-                tarball.add(full_filename)
-                if move:
-                    os.remove(full_filename)
+        filenames_to_remove = []
+        # iterate files in the container path and add them to the tarball
+        with tarfile.open(tarball_filename, mode="w") as tarball:
+            for filename in os.listdir(full_container_path):
+                full_filename = os.path.join(self.root_path, container_path, filename)
+                tarball.add(
+                    full_filename,
+                    arcname=os.path.join(container_path, filename),
+                    recursive=False
+                )
+                filenames_to_remove.append(full_filename)
+
+            # ensure the right number of files are now in the tarball
+            if len(tarball.getmembers()) != len(os.listdir(full_container_path)):
+                raise ValueError(f"tarball {tarball_filename} contains different number of files than container path")
+
+        # iterate files again and delete them
+        for full_filename in filenames_to_remove:
+            os.remove(full_filename)
+        os.rmdir(full_container_path)
 
     def tarball_open(self, index):
         "open the tarball for the container that contains this index"
@@ -90,8 +112,10 @@ class TarballNestedFilestore(TarballHelper, NestedFilestore):
 
         # if the file exists as a tarball, then open the tarball and return the file handle
         tarball = self.tarball_open(index)
+        container_path = self.get_container_path(index)
         if tarball:
-            info = tarball.getFileInfo(f"/{index}.bin")
+            index_filename = os.path.join(container_path, f"{index}.bin")
+            info = tarball.getFileInfo(index_filename)
             return tarball.open(info)
 
         # otherwise, pass to the superclass to handle as a normal file
