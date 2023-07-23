@@ -1,6 +1,8 @@
 import os
 import shutil
 import tarfile
+import logging
+import threading
 
 import ratarmountcore as rmc
 
@@ -11,15 +13,27 @@ class TarballHelper:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.tarball_cache = {}
+        self.tarball_exists_cache = {}
         self.container_size = self.base ** self.hierarchy_order[0]
+        self.tar_lock = threading.Lock()
 
     def container_full(self, index):
         "is the container that contains this index full?"
+
+        # if there is a tarball for this index, then the container is full
+        if self.tarball_exists(index):
+            return True
+
+        # if the container path does not exist, then it is not full
         container_path = os.path.dirname(self.resolve(index))
         if not os.path.exists(container_path):
             return False
-        if len(os.listdir(container_path)) >= self.container_size:
+
+        # if the container path has the right number of files, then it is full
+        if len(os.listdir(container_path)) == self.container_size:
             return True
+        elif len(os.listdir(container_path)) > self.container_size:
+            raise ValueError(f"container {container_path} has {len(os.listdir(container_path))} files, but should have {self.container_size}")
 
     def tarball_for_index(self, index):
         "get the tarball filename for the container that contains this index"
@@ -36,9 +50,14 @@ class TarballHelper:
     def tarball_exists(self, index):
         "does a tarball exist for the container that contains this index?"
         tarball_filename = self.tarball_for_index(index)
-        return os.path.exists(tarball_filename)
 
-    def tarball_create(self, index, move=False):
+        # save results for later to avoid unnecessary filesystem calls
+        if tarball_filename not in self.tarball_exists_cache:
+            self.tarball_exists_cache[tarball_filename] = os.path.exists(tarball_filename)
+
+        return self.tarball_exists_cache[tarball_filename]
+
+    def tarball_create(self, index):
         "create a tarball for the container path that contains this index"
         tarball_filename = self.tarball_for_index(index)
         # container_path = os.path.dirname(self.resolve(index))
@@ -48,7 +67,7 @@ class TarballHelper:
         filenames_to_remove = []
         # iterate files in the container path and add them to the tarball
         with tarfile.open(tarball_filename, mode="w") as tarball:
-            for filename in os.listdir(full_container_path):
+            for filename in sorted(os.listdir(full_container_path)):
                 full_filename = os.path.join(self.root_path, container_path, filename)
                 tarball.add(
                     full_filename,
@@ -78,6 +97,11 @@ class TarballHelper:
             tarball = self.tarball_cache[tarball_filename]
         return tarball
 
+    def tarball_create_if_full(self, index):
+        with self.tar_lock:
+            if self.container_full(index):
+                logging.getLogger("chaino").info(f"Tarballing {index}")
+                self.tarball_create(index)
 
 class TarballNestedFilestore(TarballHelper, NestedFilestore):
     """
@@ -93,19 +117,15 @@ class TarballNestedFilestore(TarballHelper, NestedFilestore):
         # otherwise, pass along to the superclass
         return super().exists(index)
 
-    def put(self, index, filename=None, filehandle=False, move=False, overwrite=False):
+    def put(self, index, *args, **kwargs):
         "given the path to an existing file, and given an index, copy the file to the file store and put it in the right place, creating directories as needed."
 
         # do not proceed if the index already exists inside a tarball and overwrite is False
-        if not overwrite and self.tarball_exists(index):
+        if self.tarball_exists(index):
             raise ValueError(f"{index} already exists inside tarball.")
 
         # put the file as usual
-        super().put(index, filename=filename, filehandle=filehandle, move=move, overwrite=overwrite)
-
-        # if the previous put() filled the entire nested directory, then tar it up
-        if self.container_full(index):
-            self.tarball_create(index, move=move)
+        return super().put(index=index, *args, **kwargs)
 
     def get(self, index):
         "given an index, return a file handle pointing to the file if it exists"

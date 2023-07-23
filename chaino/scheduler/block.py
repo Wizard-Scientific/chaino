@@ -3,7 +3,7 @@ import time
 import pickle
 import logging
 
-from nested_filestore import NestedFilestore
+from nested_filestore.tarball import TarballNestedFilestore
 from . import Scheduler
 
 
@@ -14,9 +14,12 @@ class BlockScheduler(Scheduler):
     Block results are stored in a NestedFilestore as pickled web3.py objects.
     """
 
-    def __init__(self, filestore_path, *args, **kwargs):
+    def __init__(self, filestore_path, hierarchy_order=[3, 3, 3], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filestore = NestedFilestore(filestore_path, [3, 3, 3])
+        self.filestore = TarballNestedFilestore(
+            root_path=filestore_path,
+            hierarchy_order=hierarchy_order
+        )
 
     def add_task(self, block_number, check_existing=True):
         "Add one task to be executed"
@@ -53,5 +56,9 @@ class BlockScheduler(Scheduler):
         block = w3.eth.getBlock(block_number, True)
         with self.filestore.writer(block_number, overwrite=True) as f:
             pickle.dump(block, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+        # for Tarball, we must check if the container is full after writing the block, not during
+        self.filestore.tarball_create_if_full(block_number)
+
         logging.getLogger("chaino").debug(f"BlockScheduler saved: block {block_number}")
         return block

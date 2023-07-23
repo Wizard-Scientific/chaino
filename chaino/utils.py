@@ -90,6 +90,7 @@ def blocks_to_txs_csv(filestore, block_start, block_end):
 
     for index in range(block_start, block_end):
         block = pickle.load(filestore.get(index))
+        logging.getLogger("chaino").debug(f"block {index} has {len(block.transactions)} transactions")
         for tx in block.transactions:
             tx_dict = {
                 "block_number": tx["blockNumber"],

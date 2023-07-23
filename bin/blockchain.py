@@ -9,7 +9,7 @@ import click
 
 from chaino.utils import init_logger, blocks_to_txs_csv
 from chaino.scheduler.block import BlockScheduler
-from chaino.nested_filestore import NestedFilestore
+from nested_filestore.tarball import TarballNestedFilestore
 
 
 @click.group()
@@ -25,7 +25,8 @@ def download(chain, block_start, block_end, filestore):
     "Write blocks from blockchain to disk"
     block_scheduler = BlockScheduler(
         chain=chain,
-        filestore_path=filestore
+        filestore_path=filestore,
+        hierarchy_order=[3, 3, 3],
     )
 
     for block_number in range(block_start, block_end):
@@ -39,7 +40,7 @@ def download(chain, block_start, block_end, filestore):
 @click.argument('filestore', type=str)
 def transactions_csv(block_start, block_end, filestore):
     "Print transactions as CSV"
-    filestore = NestedFilestore(
+    filestore = TarballNestedFilestore(
         root_path=os.path.expanduser(filestore),
         hierarchy_order=[3, 3, 3],
     )

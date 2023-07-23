@@ -125,6 +125,9 @@ class RPC:
         self.task_counter += 1
         logging.getLogger("chaino").debug(f"{self} {task_id}")
 
+        # # for debugging, launch the task in the current thread
+        # self.fetch_result(task_id, task_fn, *args)
+
         thread = threading.Thread(target=self.fetch_result, args=(task_id, task_fn, *args))
         self.running_threads.add(task_id)
         thread.start()
