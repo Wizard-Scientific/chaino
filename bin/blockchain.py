@@ -47,6 +47,16 @@ def transactions_csv(block_start, block_end, filestore):
     )
     blocks_to_txs_csv(filestore, block_start, block_end)
 
+@cli.command()
+@click.argument('filestore', type=str)
+def upgrade_to_tarball(filestore):
+    "Upgrade a NestedFilestore to a TarballNestedFilestore"
+    filestore = TarballNestedFilestore(
+        root_path=os.path.expanduser(filestore),
+        hierarchy_order=[3, 3, 3],
+    )
+    filestore.tarball_scan()
+
 
 if __name__ == "__main__":
     init_logger(level=os.getenv("LOG_LEVEL", "INFO"))

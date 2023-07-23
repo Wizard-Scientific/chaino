@@ -53,9 +53,11 @@ class TarballHelper:
 
         # save results for later to avoid unnecessary filesystem calls
         if tarball_filename not in self.tarball_exists_cache:
-            self.tarball_exists_cache[tarball_filename] = os.path.exists(tarball_filename)
-
-        return self.tarball_exists_cache[tarball_filename]
+            if os.path.exists(tarball_filename):
+                self.tarball_exists_cache[tarball_filename] = True
+        
+        if tarball_filename in self.tarball_exists_cache:
+            return True
 
     def tarball_create(self, index):
         "create a tarball for the container path that contains this index"
