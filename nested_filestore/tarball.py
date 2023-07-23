@@ -44,7 +44,7 @@ class TarballHelper:
         container_path = os.path.dirname(filename)
         container_container = os.path.dirname(container_path)
 
-        tarball_filename = os.path.join(container_container, f"{container_id}.tar")
+        tarball_filename = os.path.join(container_container, f"{container_id}.tgz")
         return tarball_filename
 
     def tarball_exists(self, index):
@@ -63,10 +63,11 @@ class TarballHelper:
         # container_path = os.path.dirname(self.resolve(index))
         container_path = self.get_container_path(index)
         full_container_path = os.path.join(self.root_path, container_path)
+        logging.getLogger("chaino").info(f"Tarballing {tarball_filename}")
 
         filenames_to_remove = []
         # iterate files in the container path and add them to the tarball
-        with tarfile.open(tarball_filename, mode="w") as tarball:
+        with tarfile.open(tarball_filename, mode="w:gz") as tarball:
             for filename in sorted(os.listdir(full_container_path)):
                 full_filename = os.path.join(self.root_path, container_path, filename)
                 tarball.add(
@@ -100,7 +101,6 @@ class TarballHelper:
     def tarball_create_if_full(self, index):
         with self.tar_lock:
             if self.container_full(index):
-                logging.getLogger("chaino").info(f"Tarballing {index}")
                 self.tarball_create(index)
 
 class TarballNestedFilestore(TarballHelper, NestedFilestore):

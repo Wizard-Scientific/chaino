@@ -29,6 +29,7 @@ def download(chain, block_start, block_end, filestore):
         hierarchy_order=[3, 3, 3],
     )
 
+    logging.getLogger("chaino").info(f"Scan unfetched blocks from {block_start} to {block_end}")
     for block_number in range(block_start, block_end):
         block_scheduler.add_task(block_number=block_number)
 
