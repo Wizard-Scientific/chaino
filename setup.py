@@ -7,7 +7,6 @@ setup(
     packages=[
         'chaino',
         'chaino.scheduler',
-        'nested_filestore',
     ],
     scripts=[
         'bin/blockchain.py'
