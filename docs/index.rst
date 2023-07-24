@@ -57,10 +57,10 @@ NestedFilestore
    :show-inheritance:
    :noindex:
 
-TarballNestedFilestore
----------------
+GzipTarballNestedFilestore
+--------------------------
 
-.. autoclass:: nested_filestore.tarball.TarballNestedFilestore
+.. autoclass:: nested_filestore.tarball.GzipTarballNestedFilestore
    :members:
    :undoc-members:
    :show-inheritance:

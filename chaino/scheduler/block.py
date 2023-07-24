@@ -3,7 +3,7 @@ import time
 import pickle
 import logging
 
-from nested_filestore.tarball import TarballNestedFilestore
+from nested_filestore.tarball import GzipTarballNestedFilestore
 from . import Scheduler
 
 
@@ -16,7 +16,7 @@ class BlockScheduler(Scheduler):
 
     def __init__(self, filestore_path, hierarchy_order=[3, 3, 3], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filestore = TarballNestedFilestore(
+        self.filestore = GzipTarballNestedFilestore(
             root_path=filestore_path,
             hierarchy_order=hierarchy_order
         )
