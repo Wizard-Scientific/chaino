@@ -23,7 +23,7 @@ setup(
         "python-dotenv",
         "click",
         "rich",
-        "git+https://github.com/0xidm/nested-filestore",
+        "nested-filestore @ git+https://github.com/0xidm/nested-filestore",
     ],
     extras_require={
         "dev": [
