@@ -23,7 +23,7 @@ setup(
         "python-dotenv",
         "click",
         "rich",
-        "ratarmountcore[gzip]",
+        "git+https://github.com/0xidm/nested-filestore",
     ],
     extras_require={
         "dev": [
