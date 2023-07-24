@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import pytest
 
@@ -7,7 +8,6 @@ from web3.middleware import simple_cache_middleware, geth_poa_middleware
 
 from chaino.scheduler.call import CallScheduler
 from chaino.scheduler.block import BlockScheduler
-from chaino.nested_filestore import NestedFilestore
 from chaino.rpc import RPC
 
 
@@ -38,16 +38,12 @@ def rpc_bsc():
 def block_scheduler():
     scheduler = BlockScheduler(
         chain="fantom",
-        filestore_path="/tmp/chaino-test"
+        filestore_path="/tmp/chaino"
     )
     return scheduler
 
 @pytest.fixture()
 def call_scheduler(rpc_fantom):
-    scheduler = CallScheduler(state_path="/tmp/chaino-test")
+    scheduler = CallScheduler(state_path="/tmp/chaino")
     scheduler.add_rpc(rpc_fantom)
     return scheduler
-
-@pytest.fixture()
-def filestore():
-    return NestedFilestore("/tmp/nested", [3, 3, 3])

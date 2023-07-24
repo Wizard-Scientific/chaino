@@ -39,19 +39,28 @@ RPC
    :show-inheritance:
    :noindex:
 
-NestedFilestore
----------------
+GroupedMulticall
+----------------
 
-.. autoclass:: chaino.nested_filestore.NestedFilestore
+.. autoclass:: chaino.grouped_multicall.GroupedMulticall
    :members:
    :undoc-members:
    :show-inheritance:
    :noindex:
 
-GroupedMulticall
-----------------
+NestedFilestore
+---------------
 
-.. autoclass:: chaino.grouped_multicall.GroupedMulticall
+.. autoclass:: nested_filestore.NestedFilestore
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :noindex:
+
+GzipTarballNestedFilestore
+--------------------------
+
+.. autoclass:: nested_filestore.tarball.GzipTarballNestedFilestore
    :members:
    :undoc-members:
    :show-inheritance:
