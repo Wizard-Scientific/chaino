@@ -6,6 +6,7 @@ from web3 import Web3, HTTPProvider
 from web3.middleware import simple_cache_middleware, geth_poa_middleware
 
 from .utils import convert_signature_to_abi
+from nested_filestore.exceptions import AlreadyExistsError
 
 
 class RPC:
@@ -114,6 +115,8 @@ class RPC:
             try:
                 # this implements the tick delay implicitly
                 result = task_fn(self.w3, *args)
+            except AlreadyExistsError:
+                break
             except Exception as e:
                 logging.getLogger("chaino").warning(f"{self} failed {task_id}: {e}")
                 self.slow_down()
