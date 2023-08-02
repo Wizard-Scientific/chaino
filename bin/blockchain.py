@@ -9,7 +9,7 @@ import click
 
 from chaino.utils import init_logger, blocks_to_txs_csv
 from chaino.scheduler.block import BlockScheduler
-from nested_filestore.tarball import GzipTarballNestedFilestore
+from nested_filestore import NestedFilestore
 
 
 @click.group()
@@ -46,7 +46,7 @@ def download(chain, block_start, block_end, filestore, no_check_existing):
 @click.argument('filestore', type=str)
 def transactions_csv(block_start, block_end, filestore):
     "Print transactions as CSV"
-    filestore = GzipTarballNestedFilestore(
+    filestore = NestedFilestore(
         root_path=os.path.expanduser(filestore),
         hierarchy_order=[3, 3, 3],
     )

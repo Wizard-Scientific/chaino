@@ -3,7 +3,7 @@ import time
 import pickle
 import logging
 
-from nested_filestore.tarball import GzipTarballNestedFilestore
+from nested_filestore import NestedFilestore
 from . import Scheduler
 
 
@@ -16,7 +16,7 @@ class BlockScheduler(Scheduler):
 
     def __init__(self, filestore_path, hierarchy_order=[3, 3, 3], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filestore = GzipTarballNestedFilestore(
+        self.filestore = NestedFilestore(
             root_path=filestore_path,
             hierarchy_order=hierarchy_order
         )
@@ -57,8 +57,8 @@ class BlockScheduler(Scheduler):
         with self.filestore.writer(block_number, overwrite=True) as f:
             pickle.dump(block, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-        # for Tarball, we must check if the container is full after writing the block, not during
-        self.filestore.tarball_create_if_full(block_number)
+        # we must try to compact the group after writing the block, not during
+        self.filestore.compact(block_number)
 
         logging.getLogger("chaino").debug(f"BlockScheduler saved: block {block_number}")
         return block
