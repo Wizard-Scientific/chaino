@@ -6,7 +6,7 @@ help:
 requirements:
 	pip3 install -U pip
 	pip3 install -e .[dev]
-	pip3 install -e ../nested_filestore
+	pip3 install -e ../nested-filestore
 
 clean:
 	find . -name '*.pyc' -delete
