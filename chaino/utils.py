@@ -92,12 +92,15 @@ def blocks_to_txs_csv(filestore, block_start, block_end):
         block = pickle.load(filestore.get(identifier))
         logging.getLogger("chaino").debug(f"block {identifier} has {len(block.transactions)} transactions")
         for tx in block.transactions:
-            tx_dict = {
-                "block_number": tx["blockNumber"],
-                "tx_hash": tx["hash"].hex(),
-                "method": tx["input"][:10],
-                "from": tx["from"],
-                "to": tx["to"],
-                "quantity": tx["value"],
-            }
-            print(",".join([str(tx_dict[field]) for field in fields]))
+            try:
+                tx_dict = {
+                    "block_number": tx["blockNumber"],
+                    "tx_hash": tx["hash"].hex(),
+                    "method": tx["input"][:10],
+                    "from": tx["from"],
+                    "to": tx["to"],
+                    "quantity": tx["value"],
+                }
+                print(",".join([str(tx_dict[field]) for field in fields]))
+            except Exception as e:
+                logging.getLogger("chaino").warning(f"failed to print tx in block {identifier}: {e}")

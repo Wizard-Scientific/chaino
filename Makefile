@@ -59,4 +59,8 @@ bsc-blocks: var
 bsc-transactions: var
 	./bin/blockchain.py transactions-csv 1 1000 var/bsc | gzip > var/bsc-txs.csv.gz
 
+-include ./settings.mk
+ethereum-transactions: var
+	BLOCKCHAIN_PATH=$(BLOCKCHAIN_PATH) ./bin/ethereum-txs-csv.sh
+
 .PHONY: docs

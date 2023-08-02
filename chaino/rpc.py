@@ -4,6 +4,7 @@ import threading
 
 from web3 import Web3, HTTPProvider
 from web3.middleware import simple_cache_middleware, geth_poa_middleware
+from requests.exceptions import HTTPError
 
 from .utils import convert_signature_to_abi
 from nested_filestore.exceptions import AlreadyExistsError
@@ -112,15 +113,24 @@ class RPC:
         result = None
         while result is None:
             self.run_slow_if_necessary()
+
             try:
                 # this implements the tick delay implicitly
                 result = task_fn(self.w3, *args)
+                self.running_threads.remove(task_id)
+                return True
             except AlreadyExistsError:
-                break
-            except Exception as e:
-                logging.getLogger("chaino").warning(f"{self} failed {task_id}: {e}")
+                logging.getLogger("chaino").warning(f"{self} {task_id} already exists")
+                self.running_threads.remove(task_id)
+                return True
+            except HTTPError as e:
+                logging.getLogger("chaino").warning(f"{self} HTTP error {task_id}: {e}")
                 self.slow_down()
-        self.running_threads.remove(task_id)
+            except Exception as e:
+                logging.getLogger("chaino").warning(f"{self} failed {task_id}: {type(e)} {e}")
+                self.slow_down()
+                self.running_threads.remove(task_id)
+                return False
 
     def dispatch_task(self, task_fn, *args):
         "Dispatch a task to the RPC."

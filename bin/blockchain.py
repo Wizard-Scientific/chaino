@@ -42,16 +42,24 @@ def download(chain, block_start, block_end, filestore, no_check_existing):
 
 @cli.command()
 @click.argument('filestore', type=str)
-def transactions_csv(filestore):
+@click.argument('block_start', type=int, default=-1)
+@click.argument('block_end', type=int, default=-1)
+def transactions_csv(filestore, block_start, block_end):
     "Print transactions as CSV"
     filestore = NestedFilestore(
         root_path=os.path.expanduser(filestore),
         hierarchy_order=[3, 3, 3],
     )
+
+    if block_start == -1:
+        block_start = int(filestore.index.min)
+    if block_end == -1:
+        block_end = int(filestore.index.max)
+
     blocks_to_txs_csv(
         filestore,
-        int(filestore.index.min),
-        int(filestore.index.max),
+        block_start,
+        block_end,
     )
 
 
