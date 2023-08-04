@@ -67,7 +67,7 @@ def transactions_csv(block_start, block_end, filestore):
 @click.argument('blocks_filestore', type=str)
 @click.argument('txs_filestore', type=str)
 @click.argument('dimensions', type=str, default="3,3")
-def extract_txs(blocks_filestore, txs_filestore):
+def extract_txs(blocks_filestore, txs_filestore, dimensions):
     "Print transactions as CSV. Dimensions refer to Txs filestore."
 
     print("loading blocks filestore")
