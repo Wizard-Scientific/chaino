@@ -7,7 +7,7 @@ import logging
 
 import click
 
-from chaino.utils import init_logger, blocks_to_txs_csv
+from chaino.utils import init_logger, blocks_to_txs_csv, group_to_txs_csv
 from chaino.scheduler.block import BlockScheduler
 from nested_filestore import NestedFilestore
 
@@ -44,7 +44,7 @@ def download(chain, block_start, block_end, filestore, no_check_existing):
 @click.argument('filestore', type=str)
 @click.argument('block_start', type=int, default=-1)
 @click.argument('block_end', type=int, default=-1)
-def transactions_csv(filestore, block_start, block_end):
+def transactions_csv(block_start, block_end, filestore):
     "Print transactions as CSV"
     filestore = NestedFilestore(
         root_path=os.path.expanduser(filestore),
@@ -61,6 +61,41 @@ def transactions_csv(filestore, block_start, block_end):
         block_start,
         block_end,
     )
+
+
+@cli.command()
+@click.argument('blocks_filestore', type=str)
+@click.argument('txs_filestore', type=str)
+def extract_txs(blocks_filestore, txs_filestore):
+    "Print transactions as CSV"
+
+    print("loading blocks filestore")
+    blocks_filestore_obj = NestedFilestore(
+        root_path=os.path.expanduser(blocks_filestore),
+        hierarchy_order=[3, 3, 3],
+    )
+
+    txs_filestore_obj = NestedFilestore(
+        root_path=os.path.expanduser(txs_filestore),
+        hierarchy_order=[3, 3],
+    )
+
+    print("extracting transactions")
+    for block_group_uri in blocks_filestore_obj.index.groups:
+        print(f"extracting {block_group_uri}")
+        block_group = blocks_filestore_obj.index.get_group(block_group_uri)
+        block_group_id = block_group.uri.replace("/", "").lstrip("0")
+        if len(block_group_id) == 0:
+            block_group_id = "0"
+
+        if not txs_filestore_obj.index.exists(block_group_id):
+            buf = group_to_txs_csv(block_group)
+            with txs_filestore_obj.writer(block_group_id) as f:
+                f.write(bytes(buf, "utf-8"))
+            txs_item = txs_filestore_obj.index.get(block_group_id)
+            txs_item.group.compact()
+        else:
+            print(f"skipping {block_group_uri}")
 
 
 if __name__ == "__main__":

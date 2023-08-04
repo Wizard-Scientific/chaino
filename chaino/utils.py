@@ -75,18 +75,50 @@ def init_logger(level="INFO"):
             level
         )
 
+txs_csv_fields = [
+    "block_number",
+    "tx_hash",
+    "method",
+    "from",
+    "to",
+    "quantity",
+]
+
+def tx_as_dict(tx):
+    "Convert a transaction to a dictionary"
+
+    tx_dict = {
+        "block_number": tx["blockNumber"],
+        "tx_hash": tx["hash"].hex(),
+        "method": tx["input"][:10],
+        "from": tx["from"],
+        "to": tx["to"] if "to" in tx else "0x",
+        "quantity": tx["value"],
+    }
+
+    return tx_dict
+
+def group_to_txs_csv(group):
+    "Stream txs from block filestore to tx csv filestore"
+    buf = ",".join(txs_csv_fields)
+    buf += "\n"
+    for item_uri in group.items:
+        item = group.get(item_uri)
+        with item.open() as f:
+            block = pickle.load(f)
+        for tx in block.transactions:
+            tx_dict = tx_as_dict(tx)
+            buf += ",".join([str(tx_dict[field]) for field in txs_csv_fields])
+            buf += "\n"
+
+    # force the file to close so we don't run out of file descriptors
+    group.close()
+    return buf
+
 def blocks_to_txs_csv(filestore, block_start, block_end):
     "Stream blocks from filestore and print transactions as CSV"
 
-    fields = [
-        "block_number",
-        "tx_hash",
-        "method",
-        "from",
-        "to",
-        "quantity",
-    ]
-    print(",".join(fields))
+    print(",".join(txs_csv_fields))
 
     for identifier in range(block_start, block_end):
         block = pickle.load(filestore.get(identifier))
@@ -101,6 +133,6 @@ def blocks_to_txs_csv(filestore, block_start, block_end):
                     "to": tx["to"],
                     "quantity": tx["value"],
                 }
-                print(",".join([str(tx_dict[field]) for field in fields]))
+                print(",".join([str(tx_dict[field]) for field in txs_csv_fields]))
             except Exception as e:
                 logging.getLogger("chaino").warning(f"failed to print tx in block {identifier}: {e}")

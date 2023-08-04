@@ -63,4 +63,8 @@ bsc-transactions: var
 ethereum-transactions: var
 	BLOCKCHAIN_PATH=$(BLOCKCHAIN_PATH) ./bin/ethereum-txs-csv.sh
 
+arbitrum-transactions: var
+	./bin/blockchain.py extract-txs $(BLOCKCHAIN_PATH)/arbitrum ./var/arbitrum-txs
+#	./bin/blockchain.py extract-txs var/arbitrum-small ./var/arbitrum-txs-test
+
 .PHONY: docs

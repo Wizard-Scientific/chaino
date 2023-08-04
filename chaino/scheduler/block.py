@@ -58,7 +58,9 @@ class BlockScheduler(Scheduler):
             pickle.dump(block, f, protocol=pickle.HIGHEST_PROTOCOL)
 
         # we must try to compact the group after writing the block, not during
-        self.filestore.index.compact(block_number)
+        group_uri = self.filestore.index.which_group(block_number)
+        group = self.filestore.index.get_group(group_uri)
+        group.compact()
 
         logging.getLogger("chaino").debug(f"BlockScheduler saved: block {block_number}")
         return block
