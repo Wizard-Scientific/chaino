@@ -2,6 +2,7 @@
 
 import os
 import json
+import gzip
 import random
 import logging
 
@@ -42,31 +43,34 @@ def download(chain, block_start, block_end, filestore, no_check_existing):
 
 @cli.command()
 @click.argument('filestore', type=str)
-@click.argument('block_start', type=int, default=-1)
-@click.argument('block_end', type=int, default=-1)
-def transactions_csv(block_start, block_end, filestore):
+@click.argument('dimensions', type=str, default="2,2,2")
+@click.argument('output_file', type=str)
+def transactions_csv(filestore, dimensions, output_file):
     "Print transactions as CSV"
-    filestore = NestedFilestore(
+    filestore_obj = NestedFilestore(
         root_path=os.path.expanduser(filestore),
-        hierarchy_order=[3, 3, 3],
+        hierarchy_order=[int(d) for d in dimensions.split(",")],
     )
 
-    if block_start == -1:
-        block_start = int(filestore.index.min)
-    if block_end == -1:
-        block_end = int(filestore.index.max)
+    print("exporting transactions")
+    with gzip.open(output_file, "wb") as output:
+        output.write(bytes("block_number,tx_hash,method,from,to,quantity\n", "utf-8"))
 
-    blocks_to_txs_csv(
-        filestore,
-        block_start,
-        block_end,
-    )
+        for group_uri in filestore_obj.index.groups:
+            group = filestore_obj.index.get_group(group_uri)
+            for item_uri in group.items:
+                item = group.get(item_uri)
+                with item.open() as f:
+                    header_row = f.readline()
+                    txs_csv_raw = f.read()
+                    output.write(txs_csv_raw)
+            group.close()
 
 
 @cli.command()
 @click.argument('blocks_filestore', type=str)
 @click.argument('txs_filestore', type=str)
-@click.argument('dimensions', type=str, default="3,3")
+@click.argument('dimensions', type=str, default="2,2,2")
 def extract_txs(blocks_filestore, txs_filestore, dimensions):
     "Print transactions as CSV. Dimensions refer to Txs filestore."
 
