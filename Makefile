@@ -47,24 +47,11 @@ build-docker-rebuild:
 var:
 	mkdir -p var
 
-fantom-blocks: var
-	./bin/blockchain.py download fantom 1 1000 var/fantom
-
-fantom-transactions: var
-	./bin/blockchain.py transactions-csv 1 1000 var/fantom | gzip > var/fantom-txs.csv.gz
-
-bsc-blocks: var
-	./bin/blockchain.py download bsc 1 1000 var/bsc
-
-bsc-transactions: var
-	./bin/blockchain.py transactions-csv 1 1000 var/bsc | gzip > var/bsc-txs.csv.gz
-
 -include ./settings.mk
 ethereum-transactions: var
-	BLOCKCHAIN_PATH=$(BLOCKCHAIN_PATH) ./bin/ethereum-txs-csv.sh
+	./bin/blockchain.py extract-txs $(BLOCKCHAIN_PATH)/ethereum ./var/ethereum-txs 2,2,2
 
 arbitrum-transactions: var
-	./bin/blockchain.py extract-txs $(BLOCKCHAIN_PATH)/arbitrum ./var/arbitrum-txs
-#	./bin/blockchain.py extract-txs var/arbitrum-small ./var/arbitrum-txs-test
+	./bin/blockchain.py extract-txs $(BLOCKCHAIN_PATH)/arbitrum ./var/arbitrum-txs 3,3
 
 .PHONY: docs

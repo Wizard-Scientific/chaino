@@ -104,8 +104,14 @@ def group_to_txs_csv(group):
     buf += "\n"
     for item_uri in group.items:
         item = group.get(item_uri)
+
         with item.open() as f:
-            block = pickle.load(f)
+            try:
+                block = pickle.load(f)
+            except Exception as e:
+                logging.getLogger("chaino").warning(f"failed to load block {item_uri} from {group}: {e}")
+                continue
+
         for tx in block.transactions:
             tx_dict = tx_as_dict(tx)
             buf += ",".join([str(tx_dict[field]) for field in txs_csv_fields])

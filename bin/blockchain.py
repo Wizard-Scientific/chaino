@@ -66,8 +66,9 @@ def transactions_csv(block_start, block_end, filestore):
 @cli.command()
 @click.argument('blocks_filestore', type=str)
 @click.argument('txs_filestore', type=str)
+@click.argument('dimensions', type=str, default="3,3")
 def extract_txs(blocks_filestore, txs_filestore):
-    "Print transactions as CSV"
+    "Print transactions as CSV. Dimensions refer to Txs filestore."
 
     print("loading blocks filestore")
     blocks_filestore_obj = NestedFilestore(
@@ -77,11 +78,12 @@ def extract_txs(blocks_filestore, txs_filestore):
 
     txs_filestore_obj = NestedFilestore(
         root_path=os.path.expanduser(txs_filestore),
-        hierarchy_order=[3, 3],
+        hierarchy_order=[int(d) for d in dimensions.split(",")],
     )
 
     print("extracting transactions")
     for block_group_uri in blocks_filestore_obj.index.groups:
+
         print(f"extracting {block_group_uri}")
         block_group = blocks_filestore_obj.index.get_group(block_group_uri)
         block_group_id = block_group.uri.replace("/", "").lstrip("0")
