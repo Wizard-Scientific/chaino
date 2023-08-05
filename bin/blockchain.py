@@ -33,7 +33,7 @@ def download(chain, block_start, block_end, filestore, no_check_existing):
     )
 
     logging.getLogger("chaino").info(f"Scan blocks from {block_start} to {block_end}")
-    for block_number in range(block_start, block_end):
+    for block_number in range(block_start, block_end+1):
         block_scheduler.add_task(
             block_number=block_number,
             check_existing=no_check_existing
