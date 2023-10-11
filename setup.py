@@ -23,6 +23,7 @@ setup(
         "click",
         "rich",
         "nested-filestore @ git+https://github.com/0xidm/nested-filestore",
+        "lmdbm",
     ],
     extras_require={
         "dev": [
